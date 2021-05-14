@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">Szambelan</string>
-    <string name="last_state">Stan wodomierzy z ostatniego wybrania szamba</string>
+    <string name="prev_empty_actions">Poprzednie opróżnienia zbiornika</string>
+    <string name="last_state">Stan wodomierzy z ostatniego opróżnienia zbiornika</string>
     <string name="main_meter">Wodomierz główny</string>
     <string name="garden_meter">Wodomierz ogrodowy</string>
     <string name="current_state">Bieżący stan wodomierzy</string>
-    <string name="output_result">Stan zapełnienia szamba</string>
+    <string name="output_result">Stan zapełnienia zbiornika</string>
+    <string name="empty_tank">Opróżnienie zbiornika</string>
+    <string name="empty_tank_question">Czy opróżniono zbiornik?\n\nSpowoduje skopiowanie bieżących stanów wodomierzy do stanów zapamiętanych.</string>
+    <string name="yes">Tak</string>
+    <string name="cancel">Anuluj</string>
+    <string name="no_data">&lt;BRAK DANYCH&gt;</string>
 </resources>
