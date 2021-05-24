@@ -1,77 +1,68 @@
 package pl.coopsoft.szambelan
 
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import pl.coopsoft.szambelan.databinding.ActivityMainBinding
 import java.util.*
 import kotlin.math.roundToInt
 
-class MainActivity : Activity(), TextWatcher {
+class MainActivity : AppCompatActivity(), TextWatcher {
 
     private companion object {
-        private const val PREFERENCES_NAME = "preferences"
-        private const val PREF_EMPTY_ACTIONS = "empty_actions"
-        private const val PREF_OLD_MAIN = "old_main"
-        private const val PREF_OLD_GARDEN = "old_garden"
-        private const val PREF_CURRENT_MAIN = "current_main"
-        private const val PREF_CURRENT_GARDEN = "current_garden"
         private const val FULL_CONTAINER = 6.0 // [m^3]
     }
 
-    private lateinit var prevEmptyActionsTextView: TextView
-    private lateinit var oldMainEditText: EditText
-    private lateinit var oldGardenEditText: EditText
-    private lateinit var currentMainEditText: EditText
-    private lateinit var currentGardenEditText: EditText
-    private lateinit var waterUsageText: TextView
-
-    var prevEmptyActions = mutableListOf<MeterStates>()
+    private val viewModel: MainViewModel by viewModels()
+    private lateinit var binding: ActivityMainBinding
+    private var prevEmptyActions = mutableListOf<MeterStates>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        prevEmptyActionsTextView = findViewById(R.id.prevEmptyActions)
-        oldMainEditText = findViewById(R.id.oldMainEditText)
-        oldGardenEditText = findViewById(R.id.oldGardenEditText)
-        currentMainEditText = findViewById(R.id.currentMainEditText)
-        currentGardenEditText = findViewById(R.id.currentGardenEditText)
-        waterUsageText = findViewById(R.id.waterUsage)
-
-        oldMainEditText.setText(getPref(this, PREF_OLD_MAIN))
-        oldGardenEditText.setText(getPref(this, PREF_OLD_GARDEN))
-        currentMainEditText.setText(getPref(this, PREF_CURRENT_MAIN))
-        currentGardenEditText.setText(getPref(this, PREF_CURRENT_GARDEN))
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
         loadMeterStates()
         refreshMeterStates()
         refreshCalculation()
 
-        oldMainEditText.addTextChangedListener(this)
-        oldGardenEditText.addTextChangedListener(this)
-        currentMainEditText.addTextChangedListener(this)
-        currentGardenEditText.addTextChangedListener(this)
+        binding.prevMainEditText.addTextChangedListener(this)
+        binding.prevGardenEditText.addTextChangedListener(this)
+        binding.currentMainEditText.addTextChangedListener(this)
+        binding.currentGardenEditText.addTextChangedListener(this)
 
-        findViewById<Button>(R.id.emptyTankButton).setOnClickListener { emptyTankClicked() }
+        binding.emptyTankButton.setOnClickListener { emptyTankClicked() }
     }
 
     override fun onDestroy() {
-        putPref(this, PREF_OLD_MAIN, oldMainEditText.text.toString())
-        putPref(this, PREF_OLD_GARDEN, oldGardenEditText.text.toString())
-        putPref(this, PREF_CURRENT_MAIN, currentMainEditText.text.toString())
-        putPref(this, PREF_CURRENT_GARDEN, currentGardenEditText.text.toString())
+        Persistence.putDouble(
+            this, Persistence.PREF_OLD_MAIN,
+            Utils.toDouble(viewModel.prevMainMeter.value.orEmpty())
+        )
+        Persistence.putDouble(
+            this, Persistence.PREF_OLD_GARDEN,
+            Utils.toDouble(viewModel.prevGardenMeter.value.orEmpty())
+        )
+        Persistence.putDouble(
+            this, Persistence.PREF_CURRENT_MAIN,
+            Utils.toDouble(viewModel.currentMainMeter.value.orEmpty())
+        )
+        Persistence.putDouble(
+            this, Persistence.PREF_CURRENT_GARDEN,
+            Utils.toDouble(viewModel.currentGardenMeter.value.orEmpty())
+        )
         super.onDestroy()
     }
 
     private fun loadMeterStates() {
-        val lines = getPref(this, PREF_EMPTY_ACTIONS, "")
+        val lines = Persistence.getString(this, Persistence.PREF_EMPTY_ACTIONS, "")
             .split('\n')
             .filterNot { it.isEmpty() }
         if (lines.isEmpty()) {
@@ -83,7 +74,7 @@ class MainActivity : Activity(), TextWatcher {
 
     private fun saveMeterStates() {
         val data = prevEmptyActions.joinToString(separator = "\n")
-        putPref(this, PREF_EMPTY_ACTIONS, data)
+        Persistence.putString(this, Persistence.PREF_EMPTY_ACTIONS, data)
     }
 
     private fun refreshMeterStates() {
@@ -91,34 +82,24 @@ class MainActivity : Activity(), TextWatcher {
             separator = "\n",
             transform = { it.toVisibleString() }
         )
-        prevEmptyActionsTextView.text = if (text.isNotEmpty()) text else getString(R.string.no_data)
+        viewModel.prevEmptyActions.value =
+            if (text.isNotEmpty()) text else getString(R.string.no_data)
     }
 
     private fun refreshCalculation() {
-        val oldMain = getNumber(oldMainEditText)
-        val oldGarden = getNumber(oldGardenEditText)
-        val currentMain = getNumber(currentMainEditText)
-        val currentGarden = getNumber(currentGardenEditText)
-        val usage = currentMain - oldMain - (currentGarden - oldGarden)
+        val prevMain = Utils.toDouble(viewModel.prevMainMeter.value.orEmpty())
+        val prevGarden = Utils.toDouble(viewModel.prevGardenMeter.value.orEmpty())
+        val currentMain = Utils.toDouble(viewModel.currentMainMeter.value.orEmpty())
+        val currentGarden = Utils.toDouble(viewModel.currentGardenMeter.value.orEmpty())
+        val usage = currentMain - prevMain - (currentGarden - prevGarden)
         val usageText = String.format(Locale.GERMANY, "%1$.2f", usage)
         val percentage = (usage * 100.0 / FULL_CONTAINER).roundToInt()
-        waterUsageText.text =
+        viewModel.waterUsage.value =
             Html.fromHtml(
                 "$usageText m<sup><small>3</small></sup>  ($percentage%)",
                 Html.FROM_HTML_MODE_LEGACY
             )
     }
-
-    private fun getNumber(editText: EditText) =
-        editText.text.toString().replace(",", ".").toDoubleOrNull() ?: 0.0
-
-    private fun getPref(context: Context, key: String, defValue: String = "0,0") =
-        context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
-            .getString(key, defValue).orEmpty()
-
-    private fun putPref(context: Context, key: String, value: String) =
-        context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
-            .edit().putString(key, value).apply()
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
     }
@@ -137,14 +118,14 @@ class MainActivity : Activity(), TextWatcher {
             .setCancelable(true)
             .setPositiveButton(R.string.yes) { dialog, _ ->
                 dialog.dismiss()
-                oldMainEditText.text = currentMainEditText.text
-                oldGardenEditText.text = currentGardenEditText.text
+                viewModel.prevMainMeter.value = viewModel.currentMainMeter.value
+                viewModel.prevGardenMeter.value = viewModel.currentGardenMeter.value
                 refreshCalculation()
 
                 val meterStates = MeterStates(
                     date = System.currentTimeMillis(),
-                    mainMeter = getNumber(oldMainEditText),
-                    gardenMeter = getNumber(oldGardenEditText)
+                    mainMeter = Utils.toDouble(viewModel.prevMainMeter.value.orEmpty()),
+                    gardenMeter = Utils.toDouble(viewModel.prevGardenMeter.value.orEmpty())
                 )
                 prevEmptyActions.add(meterStates)
                 saveMeterStates()

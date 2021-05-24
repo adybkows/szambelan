@@ -6,15 +6,18 @@ import java.util.*
 class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double) {
 
     override fun toString(): String {
-        return "$date;$mainMeter;$gardenMeter".replace(',', '.')
+        return "$date;$mainMeter;$gardenMeter"
     }
 
-    fun toVisibleString() =
-        "${DATE_FORMAT.format(Date(date))}  $mainMeter  $gardenMeter".replace('.', ',')
+    fun toVisibleString(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateStr = dateFormat.format(Date(date))
+        val mainStr = Utils.toString(mainMeter)
+        val gardenStr = Utils.toString(gardenMeter)
+        return "$dateStr  $mainStr  $gardenStr"
+    }
 
     companion object {
-        private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
-
         fun fromString(data: String): MeterStates {
             val parts = data.split(';')
             return MeterStates(
