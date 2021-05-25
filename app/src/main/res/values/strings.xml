@@ -11,4 +11,7 @@
     <string name="yes">Tak</string>
     <string name="cancel">Anuluj</string>
     <string name="no_data">&lt;BRAK DANYCH&gt;</string>
+    <string name="days_left">Pozostało dni</string>
+    <string name="dd">d</string>
+    <string name="hh">h</string>
 </resources>

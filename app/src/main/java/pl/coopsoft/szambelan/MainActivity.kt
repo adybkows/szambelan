@@ -1,6 +1,7 @@
 package pl.coopsoft.szambelan
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.Html
@@ -16,6 +17,12 @@ class MainActivity : AppCompatActivity(), TextWatcher {
 
     private companion object {
         private const val FULL_CONTAINER = 6.0 // [m^3]
+        private const val MS_IN_HOUR = 3600000
+        private const val COLOR_NORMAL = Color.WHITE
+        private const val HOURS_WARN1 = 72
+        private const val HOURS_WARN2 = 48
+        private val COLOR_WARN1 = Color.rgb(255, 128, 0)
+        private val COLOR_WARN2 = Color.rgb(255, 0, 0)
     }
 
     private val viewModel: MainViewModel by viewModels()
@@ -99,6 +106,23 @@ class MainActivity : AppCompatActivity(), TextWatcher {
                 "$usageText m<sup><small>3</small></sup>  ($percentage%)",
                 Html.FROM_HTML_MODE_LEGACY
             )
+
+        if (prevEmptyActions.isNotEmpty() && percentage > 0) {
+            val lastEmptyAction = prevEmptyActions.last()
+            val hours = (System.currentTimeMillis() - lastEmptyAction.date) / MS_IN_HOUR
+            val hoursTotal = hours * 100 / percentage
+            val hoursLeft = hoursTotal - hours
+            viewModel.daysLeft.value = Utils.toDaysHours(this, hoursLeft)
+            binding.daysLeft.setTextColor(
+                when {
+                    hoursLeft < HOURS_WARN2 -> COLOR_WARN2
+                    hoursLeft < HOURS_WARN1 -> COLOR_WARN1
+                    else -> COLOR_NORMAL
+                }
+            )
+        } else {
+            viewModel.daysLeft.value = ""
+        }
     }
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

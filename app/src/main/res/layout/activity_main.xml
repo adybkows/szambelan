@@ -144,7 +144,7 @@
 
         <TextView
             android:id="@+id/textView7"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/currentMainEditText"
             android:layout_marginTop="48dp"
@@ -152,12 +152,31 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/textView7"
+            android:layout_alignParentEnd="true"
+            android:text="@string/days_left"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/waterUsage"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/textView7"
             android:paddingTop="8dp"
             android:text="@{viewModel.waterUsage}"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/daysLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textView8"
+            android:layout_alignStart="@id/textView8"
+            android:paddingTop="8dp"
+            android:text="@{viewModel.daysLeft}"
             android:textSize="24sp" />
 
         <Button

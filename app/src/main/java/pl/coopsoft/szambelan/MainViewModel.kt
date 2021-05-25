@@ -12,6 +12,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val currentMainMeter = MutableLiveData<String>()
     val currentGardenMeter = MutableLiveData<String>()
     val waterUsage = MutableLiveData<CharSequence>()
+    val daysLeft = MutableLiveData<String>()
 
     init {
         val context = getApplication<Application>()
