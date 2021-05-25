@@ -177,6 +177,7 @@
             android:layout_alignStart="@id/textView8"
             android:paddingTop="8dp"
             android:text="@{viewModel.daysLeft}"
+            android:textColor="@{viewModel.daysLeftColor}"
             android:textSize="24sp" />
 
         <Button
