@@ -3,7 +3,9 @@ package pl.coopsoft.szambelan
 import android.app.Application
 import android.content.Context
 import android.graphics.Color
+import android.text.Editable
 import android.text.Html
+import android.text.TextWatcher
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import java.util.*
@@ -19,6 +21,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val HOURS_WARN2 = 48
         private val COLOR_WARN1 = Color.rgb(255, 128, 0)
         private val COLOR_WARN2 = Color.rgb(255, 0, 0)
+    }
+
+    val editTextChangedListener = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+            refreshCalculation()
+        }
     }
 
     val prevEmptyActions = MutableLiveData<String>()

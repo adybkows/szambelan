@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -68,7 +69,8 @@
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
-            android:text="@={viewModel.prevMainMeter}" />
+            android:text="@={viewModel.prevMainMeter}"
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
 
         <TextView
             android:id="@+id/textView3"
@@ -89,7 +91,8 @@
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
-            android:text="@={viewModel.prevGardenMeter}" />
+            android:text="@={viewModel.prevGardenMeter}"
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
 
         <TextView
             android:id="@+id/textView4"
@@ -119,7 +122,8 @@
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
-            android:text="@={viewModel.currentMainMeter}" />
+            android:text="@={viewModel.currentMainMeter}"
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
 
         <TextView
             android:id="@+id/textView6"
@@ -140,7 +144,8 @@
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
-            android:text="@={viewModel.currentGardenMeter}" />
+            android:text="@={viewModel.currentGardenMeter}"
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
 
         <TextView
             android:id="@+id/textView7"
