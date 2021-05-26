@@ -5,13 +5,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdkVersion "android-S"
 
     defaultConfig {
         applicationId "pl.coopsoft.szambelan"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion "S"
         versionCode 1003
         versionName "1.3"
     }
