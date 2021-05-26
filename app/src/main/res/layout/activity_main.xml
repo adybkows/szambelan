@@ -10,193 +10,204 @@
             type="pl.coopsoft.szambelan.MainViewModel" />
     </data>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="vertical"
+        android:padding="16dp"
         tools:context=".MainActivity">
 
-        <View
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/centerLine"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:visibility="invisible" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
         <TextView
             android:id="@+id/prevEmptyActionsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/prev_empty_actions"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/prevEmptyActions"
+            android:id="@+id/prevEmptyActionsList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/prevEmptyActionsTitle"
-            android:text="@{viewModel.prevEmptyActions}" />
+            android:text="@{viewModel.prevEmptyActions}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/prevEmptyActionsTitle" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/lastStateTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/prevEmptyActions"
             android:layout_marginTop="32dp"
             android:text="@string/last_state"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/prevEmptyActionsList" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/prevMainEditTextLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView"
             android:layout_marginTop="16dp"
             android:labelFor="@+id/prevMainEditText"
-            android:text="@string/main_meter" />
+            android:text="@string/main_meter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lastStateTitle" />
 
         <EditText
             android:id="@+id/prevMainEditText"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView2"
             android:layout_marginEnd="64dp"
-            android:layout_toStartOf="@id/centerLine"
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
             android:text="@={viewModel.prevMainMeter}"
-            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}"
+            app:layout_constraintEnd_toStartOf="@+id/centerLine"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/prevMainEditTextLabel" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/prevGardenEditTextLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/textView2"
-            android:layout_toEndOf="@id/centerLine"
             android:labelFor="@+id/prevGardenEditText"
-            android:text="@string/garden_meter" />
+            android:text="@string/garden_meter"
+            app:layout_constraintBaseline_toBaselineOf="@id/prevMainEditTextLabel"
+            app:layout_constraintStart_toStartOf="@id/centerLine" />
 
         <EditText
             android:id="@+id/prevGardenEditText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/prevMainEditText"
-            android:layout_alignParentEnd="true"
-            android:layout_toEndOf="@id/centerLine"
+            android:layout_marginEnd="64dp"
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
             android:text="@={viewModel.prevGardenMeter}"
-            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}"
+            app:layout_constraintBaseline_toBaselineOf="@id/prevMainEditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/centerLine" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/currentStateTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/prevMainEditText"
             android:layout_marginTop="48dp"
             android:text="@string/current_state"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/prevMainEditText" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/currentMainEditTextLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView4"
             android:layout_marginTop="16dp"
             android:labelFor="@+id/currentMainEditText"
-            android:text="@string/main_meter" />
+            android:text="@string/main_meter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/currentStateTitle" />
 
         <EditText
             android:id="@+id/currentMainEditText"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView5"
             android:layout_marginEnd="64dp"
-            android:layout_toStartOf="@id/centerLine"
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
             android:text="@={viewModel.currentMainMeter}"
-            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}"
+            app:layout_constraintEnd_toStartOf="@+id/centerLine"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/currentMainEditTextLabel" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/currentGardenEditTextLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/textView5"
-            android:layout_toEndOf="@id/centerLine"
             android:labelFor="@+id/currentGardenEditText"
-            android:text="@string/garden_meter" />
+            android:text="@string/garden_meter"
+            app:layout_constraintBaseline_toBaselineOf="@id/currentMainEditTextLabel"
+            app:layout_constraintStart_toStartOf="@id/centerLine" />
 
         <EditText
             android:id="@+id/currentGardenEditText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/currentMainEditText"
-            android:layout_alignParentEnd="true"
-            android:layout_toEndOf="@id/centerLine"
+            android:layout_marginEnd="64dp"
             android:digits="0123456789.,"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
             android:text="@={viewModel.currentGardenMeter}"
-            app:addTextChangedListener="@{viewModel.editTextChangedListener}" />
+            app:addTextChangedListener="@{viewModel.editTextChangedListener}"
+            app:layout_constraintBaseline_toBaselineOf="@id/currentMainEditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/centerLine" />
 
         <TextView
-            android:id="@+id/textView7"
+            android:id="@+id/waterUsageLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/currentMainEditText"
             android:layout_marginTop="48dp"
             android:text="@string/output_result"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textView8"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/textView7"
-            android:layout_alignParentEnd="true"
-            android:text="@string/days_left"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/currentMainEditText" />
 
         <TextView
             android:id="@+id/waterUsage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView7"
             android:paddingTop="8dp"
             android:text="@{viewModel.waterUsage}"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/waterUsageLabel" />
+
+        <TextView
+            android:id="@+id/daysLeftLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_left"
+            android:textStyle="bold"
+            app:layout_constraintBaseline_toBaselineOf="@id/waterUsageLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/centerLine" />
 
         <TextView
             android:id="@+id/daysLeft"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView8"
-            android:layout_alignStart="@id/textView8"
             android:paddingTop="8dp"
             android:text="@{viewModel.daysLeft}"
             android:textColor="@{viewModel.daysLeftColor}"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/centerLine"
+            app:layout_constraintTop_toBottomOf="@id/daysLeftLabel" />
 
         <Button
             android:id="@+id/emptyTankButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/waterUsage"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="64dp"
             android:paddingHorizontal="32dp"
             android:paddingVertical="16dp"
             android:text="@string/empty_tank"
-            android:textAllCaps="true" />
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/waterUsage" />
 
-    </RelativeLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -53,7 +53,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshCalculation()
     }
 
-    private inline fun context(): Context = getApplication<Application>()
+    private fun context(): Context = getApplication<Application>()
 
     private fun loadEditValues() {
         prevMainMeter.value =
