@@ -1,3 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+    <!ENTITY nbsp "&#160;"><!-- non-breaking space, U+00A0 -->
+    ]>
 <resources>
     <string name="app_name">Szambelan</string>
     <string name="prev_empty_actions">Poprzednie opróżnienia zbiornika</string>
@@ -14,4 +18,5 @@
     <string name="days_left">Pozostało dni</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
+    <string name="days_fmt">&nbsp;&nbsp;(%1$d dni)</string>
 </resources>

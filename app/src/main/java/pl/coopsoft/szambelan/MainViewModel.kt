@@ -133,12 +133,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun showMeterStates() {
-        val text = emptyActions.joinToString(
-            separator = "\n",
-            transform = { it.toVisibleString() }
-        )
+        val text = StringBuilder()
+        for (i in emptyActions.indices) {
+            val line =
+                emptyActions[i].toVisibleString(context(), if (i > 0) emptyActions[i - 1] else null)
+            if (text.isNotEmpty()) {
+                text.append("\n")
+            }
+            text.append(line)
+        }
+//        val text = emptyActions.joinToString(
+//            separator = "\n",
+//            transform = { it.toVisibleString() }
+//        )
         prevEmptyActions.value =
-            if (text.isNotEmpty()) text else context().getString(R.string.no_data)
+            if (text.isNotEmpty()) text.toString() else context().getString(R.string.no_data)
     }
 
     fun emptyTank() {
