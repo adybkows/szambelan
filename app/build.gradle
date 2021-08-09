@@ -11,8 +11,8 @@ android {
         applicationId "pl.coopsoft.szambelan"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 1004
-        versionName "1.4"
+        versionCode 1005
+        versionName "1.5"
     }
 
     buildTypes {
