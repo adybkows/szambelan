@@ -18,5 +18,8 @@
     <string name="days_left">Pozostało dni</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
-    <string name="days_fmt">&nbsp;&nbsp;(%1$d dni)</string>
+    <plurals name="days_fmt">
+        <item quantity="one">&nbsp;&nbsp;(%1$d dzień)</item>
+        <item quantity="other">&nbsp;&nbsp;(%1$d dni)</item>
+    </plurals>
 </resources>

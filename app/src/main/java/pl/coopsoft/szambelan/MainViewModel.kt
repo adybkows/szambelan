@@ -91,7 +91,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val currentMain = Utils.toDouble(currentMainMeter.value.orEmpty())
         val currentGarden = Utils.toDouble(currentGardenMeter.value.orEmpty())
         val usage = currentMain - prevMain - (currentGarden - prevGarden)
-        val usageText = String.format(Locale.GERMANY, "%1$.2f", usage)
+        val usageText = String.format(Locale.getDefault(), "%1$.2f", usage)
         val percentage = (usage * 100.0 / FULL_CONTAINER).roundToInt()
         waterUsage.value =
             Html.fromHtml(

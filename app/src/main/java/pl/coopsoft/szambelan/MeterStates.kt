@@ -15,7 +15,13 @@ class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double
         val dateStr = dateFormat.format(Date(date))
         val mainStr = Utils.toString(mainMeter)
         val gardenStr = Utils.toString(gardenMeter)
-        val days = if (prev == null) "" else context.getString(R.string.days_fmt, daysSince(prev))
+        val days =
+            if (prev == null)
+                ""
+            else {
+                val daysSince = daysSince(prev).toInt()
+                context.resources.getQuantityString(R.plurals.days_fmt, daysSince, daysSince)
+            }
         return "$dateStr  $mainStr  $gardenStr$days"
     }
 
