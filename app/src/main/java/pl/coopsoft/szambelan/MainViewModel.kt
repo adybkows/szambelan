@@ -8,6 +8,7 @@ import android.text.Html
 import android.text.TextWatcher
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import java.text.DecimalFormatSymbols
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -31,6 +32,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         override fun afterTextChanged(s: Editable?) {
+            updateDecimalSeparator(s)
             refreshCalculation()
         }
     }
@@ -43,6 +45,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val waterUsage = MutableLiveData<CharSequence>()
     val daysLeft = MutableLiveData<String>()
     val daysLeftColor = MutableLiveData(COLOR_NORMAL)
+
+    private val decimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
+    private val wrongDecimalSeparator = if (decimalSeparator == '.') ',' else '.'
 
     private var emptyActions = mutableListOf<MeterStates>()
 
@@ -113,6 +118,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         } else {
             daysLeft.value = ""
+        }
+    }
+
+    private fun updateDecimalSeparator(s: Editable?) {
+        if (s != null) {
+            val pos = s.indexOf(wrongDecimalSeparator)
+            if (pos >= 0) {
+                s.replace(pos, pos + 1, decimalSeparator.toString())
+            }
         }
     }
 

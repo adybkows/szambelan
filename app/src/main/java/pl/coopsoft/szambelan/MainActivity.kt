@@ -22,6 +22,11 @@ class MainActivity : AppCompatActivity() {
         binding.emptyTankButton.setOnClickListener { emptyTankClicked() }
     }
 
+    override fun onBackPressed() {
+        viewModel.saveEditValues()
+        super.onBackPressed()
+    }
+
     override fun onDestroy() {
         viewModel.saveEditValues()
         super.onDestroy()
