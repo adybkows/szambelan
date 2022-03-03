@@ -20,6 +20,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val COLOR_NORMAL = Color.WHITE
         private const val HOURS_WARN1 = 72
         private const val HOURS_WARN2 = 48
+        private const val MAX_METER_STATES = 7
         private val COLOR_WARN1 = Color.rgb(255, 128, 0)
         private val COLOR_WARN2 = Color.rgb(255, 0, 0)
     }
@@ -51,14 +52,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private var emptyActions = mutableListOf<MeterStates>()
 
-    init {
+    private fun context(): Context = getApplication<Application>()
+
+    fun loadAllData() {
         loadEditValues()
         loadMeterStates()
         showMeterStates()
         refreshCalculation()
     }
-
-    private fun context(): Context = getApplication<Application>()
 
     private fun loadEditValues() {
         prevMainMeter.value =
@@ -156,12 +157,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             text.append(line)
         }
-//        val text = emptyActions.joinToString(
-//            separator = "\n",
-//            transform = { it.toVisibleString() }
-//        )
         prevEmptyActions.value =
-            if (text.isNotEmpty()) text.toString() else context().getString(R.string.no_data)
+            if (text.isNotEmpty())
+                limitLines(text.toString(), MAX_METER_STATES)
+            else
+                context().getString(R.string.no_data)
+    }
+
+    private fun limitLines(s: String, maxLines: Int): String {
+        val lines = s.split('\n')
+        if (lines.size <= maxLines) {
+            return s
+        }
+        val lastLines = lines.subList(lines.size - maxLines, lines.size)
+        return lastLines.joinToString("\n")
     }
 
     fun emptyTank() {

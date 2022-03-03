@@ -20,6 +20,8 @@ class MainActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
 
         binding.emptyTankButton.setOnClickListener { emptyTankClicked() }
+
+        viewModel.loadAllData()
     }
 
     override fun onBackPressed() {
