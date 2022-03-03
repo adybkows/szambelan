@@ -11,8 +11,8 @@ android {
         applicationId "pl.coopsoft.szambelan"
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 1006
-        versionName "1.6"
+        versionCode 1007
+        versionName "1.7"
     }
 
     buildTypes {
@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    def lifecycle_version = "2.4.0"
+    def lifecycle_version = "2.4.1"
 
     implementation 'androidx.activity:activity-ktx:1.4.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
