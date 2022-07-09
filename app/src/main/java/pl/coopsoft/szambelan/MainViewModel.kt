@@ -5,9 +5,9 @@ import android.content.Context
 import android.graphics.Color
 import android.text.Editable
 import android.text.Html
-import android.text.TextWatcher
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import java.text.DecimalFormatSymbols
 import java.util.*
 import kotlin.math.roundToInt
@@ -25,27 +25,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private val COLOR_WARN2 = Color.rgb(255, 0, 0)
     }
 
-    val editTextChangedListener = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-            updateDecimalSeparator(s)
-            refreshCalculation()
-        }
-    }
-
-    val prevEmptyActions = MutableLiveData<String>()
-    val prevMainMeter = MutableLiveData<String>()
-    val prevGardenMeter = MutableLiveData<String>()
-    val currentMainMeter = MutableLiveData<String>()
-    val currentGardenMeter = MutableLiveData<String>()
-    val waterUsage = MutableLiveData<CharSequence>()
-    val daysLeft = MutableLiveData<String>()
-    val daysLeftColor = MutableLiveData(COLOR_NORMAL)
+    val prevEmptyActions = mutableStateOf("")
+    val prevMainMeter = mutableStateOf("")
+    val prevGardenMeter = mutableStateOf("")
+    val currentMainMeter = mutableStateOf("")
+    val currentGardenMeter = mutableStateOf("")
+    val waterUsage: MutableState<CharSequence> = mutableStateOf("")
+    val daysLeft = mutableStateOf("")
+    val daysLeftColor = mutableStateOf(COLOR_NORMAL)
 
     private val decimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
     private val wrongDecimalSeparator = if (decimalSeparator == '.') ',' else '.'
@@ -75,35 +62,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveEditValues() {
         Persistence.putDouble(
             context(), Persistence.PREF_OLD_MAIN,
-            Utils.toDouble(prevMainMeter.value.orEmpty())
+            Utils.toDouble(prevMainMeter.value)
         )
         Persistence.putDouble(
             context(), Persistence.PREF_OLD_GARDEN,
-            Utils.toDouble(prevGardenMeter.value.orEmpty())
+            Utils.toDouble(prevGardenMeter.value)
         )
         Persistence.putDouble(
             context(), Persistence.PREF_CURRENT_MAIN,
-            Utils.toDouble(currentMainMeter.value.orEmpty())
+            Utils.toDouble(currentMainMeter.value)
         )
         Persistence.putDouble(
             context(), Persistence.PREF_CURRENT_GARDEN,
-            Utils.toDouble(currentGardenMeter.value.orEmpty())
+            Utils.toDouble(currentGardenMeter.value)
         )
     }
 
     fun refreshCalculation() {
-        val prevMain = Utils.toDouble(prevMainMeter.value.orEmpty())
-        val prevGarden = Utils.toDouble(prevGardenMeter.value.orEmpty())
-        val currentMain = Utils.toDouble(currentMainMeter.value.orEmpty())
-        val currentGarden = Utils.toDouble(currentGardenMeter.value.orEmpty())
+        val prevMain = Utils.toDouble(prevMainMeter.value)
+        val prevGarden = Utils.toDouble(prevGardenMeter.value)
+        val currentMain = Utils.toDouble(currentMainMeter.value)
+        val currentGarden = Utils.toDouble(currentGardenMeter.value)
         val usage = currentMain - prevMain - (currentGarden - prevGarden)
         val usageText = String.format(Locale.getDefault(), "%1$.2f", usage)
         val percentage = (usage * 100.0 / FULL_CONTAINER).roundToInt()
         waterUsage.value =
-            Html.fromHtml(
-                "$usageText m<sup><small>3</small></sup>  ($percentage%)",
-                Html.FROM_HTML_MODE_LEGACY
-            )
+            if (usage < 0) "" else
+                Html.fromHtml(
+                    "$usageText m<sup><small>3</small></sup>  ($percentage%)",
+                    Html.FROM_HTML_MODE_LEGACY
+                )
 
         if (emptyActions.isNotEmpty() && percentage > 0) {
             val lastEmptyAction = emptyActions.last()
@@ -130,6 +118,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun updateDecimalSeparator(s: String) =
+        s.replace(wrongDecimalSeparator, decimalSeparator)
 
     private fun loadMeterStates() {
         val lines = Persistence.getString(context(), Persistence.PREF_EMPTY_ACTIONS, "")
@@ -180,8 +171,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val meterStates = MeterStates(
             date = System.currentTimeMillis(),
-            mainMeter = Utils.toDouble(prevMainMeter.value.orEmpty()),
-            gardenMeter = Utils.toDouble(prevGardenMeter.value.orEmpty())
+            mainMeter = Utils.toDouble(prevMainMeter.value),
+            gardenMeter = Utils.toDouble(prevGardenMeter.value)
         )
         emptyActions.add(meterStates)
         saveMeterStates()

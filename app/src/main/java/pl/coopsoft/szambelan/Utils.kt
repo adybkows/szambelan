@@ -21,4 +21,20 @@ object Utils {
             else -> "$days$dd $hoursLeft$hh"
         }
     }
+
+    fun isDigitOrDot(c: Char): Boolean =
+        (c in '0'..'9') || (c == '.') || (c == ',')
+
+    fun maxOneDot(s: String): String {
+        var dot = false
+        return s.filter {
+            if (it != '.' && it != ',')
+                true
+            else if (!dot) {
+                dot = true
+                true
+            } else
+                false
+        }
+    }
 }
