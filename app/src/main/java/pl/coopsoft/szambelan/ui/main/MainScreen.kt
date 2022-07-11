@@ -9,17 +9,25 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,9 +50,9 @@ fun MainActivityScreen(
     onCurrentMainMeterChange: (String) -> Unit,
     currentGardenMeter: MutableState<String>,
     onCurrentGardenMeterChange: (String) -> Unit,
-    waterUsage: MutableState<CharSequence>,
+    waterUsage: MutableState<AnnotatedString>,
     daysLeft: MutableState<String>,
-    @ColorInt daysLeftColor: MutableState<Int>,
+    daysLeftColor: MutableState<Color>,
     emptyTankClicked: () -> Unit
 ) {
     MainTheme {
@@ -59,12 +67,10 @@ fun MainActivityScreen(
             ) {
                 Text(
                     text = stringResource(R.string.prev_empty_actions),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = prevEmptyActions.value,
-                    color = Color.White
+                    text = prevEmptyActions.value
                 )
                 MeterStateBlock(
                     title = R.string.last_state,
@@ -73,7 +79,8 @@ fun MainActivityScreen(
                     onMainValueChange = onPrevMainMeterChange,
                     secondName = R.string.garden_meter,
                     secondValue = prevGardenMeter,
-                    onSecondValueChange = onPrevGardenMeterChange
+                    onSecondValueChange = onPrevGardenMeterChange,
+                    isLast = false
                 )
                 MeterStateBlock(
                     title = R.string.current_state,
@@ -82,7 +89,8 @@ fun MainActivityScreen(
                     onMainValueChange = onCurrentMainMeterChange,
                     secondName = R.string.garden_meter,
                     secondValue = currentGardenMeter,
-                    onSecondValueChange = onCurrentGardenMeterChange
+                    onSecondValueChange = onCurrentGardenMeterChange,
+                    isLast = true
                 )
                 Row(
                     modifier = Modifier
@@ -92,14 +100,12 @@ fun MainActivityScreen(
                     Column(modifier = Modifier.fillMaxWidth(0.5f)) {
                         Text(
                             text = stringResource(R.string.output_result),
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            fontWeight = FontWeight.Bold
                         )
-                        StyledText(
+                        Text(
                             modifier = Modifier.padding(top = 8.dp),
                             text = waterUsage.value,
-                            color = android.graphics.Color.WHITE,
-                            sizeSp = 24f
+                            fontSize = 24.sp
                         )
                     }
                     Column(
@@ -108,14 +114,13 @@ fun MainActivityScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.days_left),
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            fontWeight = FontWeight.Bold
                         )
                         Text(
                             modifier = Modifier.padding(top = 8.dp),
                             text = daysLeft.value,
                             fontSize = 24.sp,
-                            color = Color(daysLeftColor.value)
+                            color = daysLeftColor.value
                         )
                     }
                 }
@@ -145,7 +150,8 @@ fun MeterStateBlock(
     onMainValueChange: (String) -> Unit,
     @StringRes secondName: Int,
     secondValue: MutableState<String>,
-    onSecondValueChange: (String) -> Unit
+    onSecondValueChange: (String) -> Unit,
+    isLast: Boolean
 ) {
     Column(modifier = modifier) {
         Text(
@@ -154,7 +160,6 @@ fun MeterStateBlock(
                 .padding(top = 32.dp),
             text = stringResource(title),
             fontWeight = FontWeight.Bold,
-            color = Color.White,
             textAlign = TextAlign.Center
         )
         Row(modifier = Modifier.padding(top = 16.dp)) {
@@ -163,32 +168,36 @@ fun MeterStateBlock(
                 name = mainName,
                 text = mainValue,
                 onValueChange = onMainValueChange,
-                endPadding = 16.dp
+                endPadding = 16.dp,
+                isLast = false
             )
             MeterState(
                 modifier = Modifier.padding(start = 16.dp),
                 name = secondName,
                 text = secondValue,
                 onValueChange = onSecondValueChange,
-                endPadding = 0.dp
+                endPadding = 0.dp,
+                isLast = isLast
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MeterState(
     modifier: Modifier = Modifier,
     endPadding: Dp,
     @StringRes name: Int,
     text: MutableState<String>,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    isLast: Boolean
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(modifier = modifier) {
         Text(
-            text = stringResource(name),
-            color = Color.White
+            text = stringResource(name)
         )
         OutlinedTextField(
             modifier = Modifier.padding(top = 8.dp, end = endPadding),
@@ -203,7 +212,11 @@ fun MeterState(
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
-                autoCorrect = false
+                autoCorrect = false,
+                imeAction = if (isLast) ImeAction.Done else ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { keyboardController?.hide() }
             )
         )
     }
@@ -239,7 +252,7 @@ fun DefaultPreview() {
         mutableStateOf("ABCD\nABCD"),
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
-        mutableStateOf("AAAA"), mutableStateOf("5"),
-        mutableStateOf(android.graphics.Color.WHITE), {}
+        mutableStateOf(AnnotatedString("90%")), mutableStateOf("1"),
+        mutableStateOf(Color.Red), {}
     )
 }

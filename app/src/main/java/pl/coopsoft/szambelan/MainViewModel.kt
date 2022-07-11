@@ -2,11 +2,15 @@ package pl.coopsoft.szambelan
 
 import android.app.Application
 import android.content.Context
-import android.graphics.Color
 import android.text.Editable
-import android.text.Html
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import java.text.DecimalFormatSymbols
 import java.util.*
@@ -17,12 +21,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         private const val FULL_CONTAINER = 6.0 // [m^3]
         private const val MS_IN_HOUR = 3600000
-        private const val COLOR_NORMAL = Color.WHITE
         private const val HOURS_WARN1 = 72
         private const val HOURS_WARN2 = 48
         private const val MAX_METER_STATES = 7
-        private val COLOR_WARN1 = Color.rgb(255, 128, 0)
-        private val COLOR_WARN2 = Color.rgb(255, 0, 0)
+        private val COLOR_NORMAL = Color.White
+        private val COLOR_WARN1 = Color(0xffff8000)
+        private val COLOR_WARN2 = Color.Red
     }
 
     val prevEmptyActions = mutableStateOf("")
@@ -30,7 +34,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val prevGardenMeter = mutableStateOf("")
     val currentMainMeter = mutableStateOf("")
     val currentGardenMeter = mutableStateOf("")
-    val waterUsage: MutableState<CharSequence> = mutableStateOf("")
+    val waterUsage = mutableStateOf(AnnotatedString(""))
     val daysLeft = mutableStateOf("")
     val daysLeftColor = mutableStateOf(COLOR_NORMAL)
 
@@ -86,12 +90,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val usage = currentMain - prevMain - (currentGarden - prevGarden)
         val usageText = String.format(Locale.getDefault(), "%1$.2f", usage)
         val percentage = (usage * 100.0 / FULL_CONTAINER).roundToInt()
+        val superScriptStyle =
+            SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)
         waterUsage.value =
-            if (usage < 0) "" else
-                Html.fromHtml(
-                    "$usageText m<sup><small>3</small></sup>  ($percentage%)",
-                    Html.FROM_HTML_MODE_LEGACY
-                )
+            if (usage < 0)
+                AnnotatedString("")
+            else
+                buildAnnotatedString {
+                    append("$usageText m")
+                    withStyle(superScriptStyle) { append("3") }
+                    append("  ($percentage%)")
+                }
 
         if (emptyActions.isNotEmpty() && percentage > 0) {
             val lastEmptyAction = emptyActions.last()
