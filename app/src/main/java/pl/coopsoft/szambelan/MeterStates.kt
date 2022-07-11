@@ -20,7 +20,7 @@ class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double
                 ""
             else {
                 val daysSince = daysSince(prev).toInt()
-                context.resources.getQuantityString(R.plurals.days_fmt, daysSince, daysSince)
+                "  ${context.resources.getQuantityString(R.plurals.days_fmt, daysSince, daysSince)}"
             }
         return "$dateStr  $mainStr  $gardenStr$days"
     }

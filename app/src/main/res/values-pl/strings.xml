@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+    <!ENTITY nbsp "&#160;"><!-- non-breaking space, U+00A0 -->
+    ]>
+<resources>
+<string name="app_name">Szambelan</string>
+    <string name="prev_empty_actions">Poprzednie opróżnienia zbiornika</string>
+    <string name="last_state">Stan wodomierzy z ostatniego opróżnienia zbiornika</string>
+    <string name="main_meter">Wodomierz główny</string>
+    <string name="garden_meter">Wodomierz ogrodowy</string>
+    <string name="current_state">Bieżący stan wodomierzy</string>
+    <string name="output_result">Stan zapełnienia zbiornika</string>
+    <string name="empty_tank">Opróżnienie zbiornika</string>
+    <string name="empty_tank_question">Czy opróżniono zbiornik?\n\nSpowoduje skopiowanie bieżących stanów wodomierzy do stanów zapamiętanych.</string>
+    <string name="yes">Tak</string>
+    <string name="cancel">Anuluj</string>
+    <string name="no_data">&lt;BRAK DANYCH&gt;</string>
+    <string name="days_left">Pozostało dni</string>
+    <string name="dd">d</string>
+    <string name="hh">h</string>
+    <plurals name="days_fmt">
+        <item quantity="one">(%1$d dzień)</item>
+        <item quantity="few">(%1$d dni)</item>
+        <item quantity="many">(%1$d dni)</item>
+        <item quantity="other">(%1$d dni)</item>
+    </plurals>
+</resources>
