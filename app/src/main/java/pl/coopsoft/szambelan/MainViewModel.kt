@@ -35,6 +35,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     var userId = ""
+    val loggedIn = mutableStateOf(false)
     val prevEmptyActions = mutableStateOf("")
     val prevMainMeter = mutableStateOf("")
     val prevGardenMeter = mutableStateOf("")
@@ -51,19 +52,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun context(): Context = getApplication<Application>()
 
-    fun loadAllData() {
-        loadUserId()
+    fun loadAllData(done: (Boolean) -> Unit) {
+        // load and show data from shared preferences
         loadEditValues()
         loadMeterStates()
         showMeterStates()
         refreshCalculation()
+
+        // download data from remote storage
+        autoLogInUser(done)
     }
 
-    private fun loadUserId() {
+    private fun autoLogInUser(done: (Boolean) -> Unit) {
         userId = Persistence.getString(context(), Persistence.PREF_USER_ID, "")
-        if (userId.isEmpty()) {
-            userId = UUID.randomUUID().toString()
-            Persistence.putString(context(), Persistence.PREF_USER_ID, userId)
+        if (userId.isNotEmpty()) {
+            logIn(userId, done)
+        } else {
+            done(false)
         }
     }
 
@@ -103,7 +108,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             currentGardenMeter = Utils.toDouble(currentGardenMeter.value),
             emptyActions = emptyActions
         )
-        RemoteStorageHelper.uploadData(data, userId) { t->
+        RemoteStorageHelper.uploadData(data, userId) { t ->
             if (t != null) {
                 Log.e(TAG, "Upload failed: $t")
                 done(false)
@@ -237,5 +242,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         emptyActions.add(meterStates)
         saveMeterStates()
         showMeterStates()
+    }
+
+    fun logIn(newUserId: String, done: (Boolean) -> Unit) {
+        if (newUserId.isNotEmpty()) {
+            Persistence.putString(context(), Persistence.PREF_USER_ID, userId)
+            userId = newUserId
+            loggedIn.value = true
+            downloadFromRemoteStorage {
+                if (it) {
+                    showMeterStates()
+                    refreshCalculation()
+                    saveEditValues()
+                    saveMeterStates()
+                }
+                done(it)
+            }
+        }
     }
 }

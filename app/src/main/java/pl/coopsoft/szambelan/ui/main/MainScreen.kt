@@ -12,10 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +38,7 @@ import pl.coopsoft.szambelan.ui.theme.MainTheme
 
 @Composable
 fun MainScreen(
+    loggedIn: Boolean,
     prevEmptyActions: MutableState<String>,
     prevMainMeter: MutableState<String>,
     onPrevMainMeterChange: (String) -> Unit,
@@ -54,8 +52,7 @@ fun MainScreen(
     daysLeft: MutableState<String>,
     daysLeftColor: MutableState<Color>,
     emptyTankClicked: () -> Unit,
-    downloadClicked: () -> Unit,
-    uploadClicked: () -> Unit,
+    logInOutClicked: () -> Unit
 ) {
     MainTheme {
         Surface(
@@ -67,24 +64,21 @@ fun MainScreen(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                Row(
+                Button(
+                    onClick = { logInOutClicked() },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = if (loggedIn) Color.Red else Color.Green
+                    ),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 32.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .padding(bottom = 24.dp)
+                        .align(Alignment.CenterHorizontally)
                 ) {
-                    Button(
-                        onClick = { downloadClicked() },
-                        modifier = Modifier.width(120.dp)
-                    ) {
-                        Text(text = stringResource(R.string.download).uppercase())
-                    }
-                    Button(
-                        onClick = { uploadClicked() },
-                        modifier = Modifier.width(120.dp)
-                    ) {
-                        Text(text = stringResource(R.string.upload).uppercase())
-                    }
+                    Text(
+                        text = stringResource(
+                            if (loggedIn) R.string.log_out else R.string.log_in
+                        ).uppercase(),
+                        color = if (loggedIn) Color.White else Color.Black
+                    )
                 }
                 Text(
                     text = stringResource(R.string.prev_empty_actions),
@@ -270,10 +264,11 @@ fun StyledText(
 @Composable
 fun MainScreenPreview() {
     MainScreen(
+        false,
         mutableStateOf("ABCD\nABCD"),
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf(AnnotatedString("90%")), mutableStateOf("1"),
-        mutableStateOf(Color.Red), {}, {}, {}
+        mutableStateOf(Color.Red), {}, {}
     )
 }

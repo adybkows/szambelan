@@ -18,8 +18,14 @@
     <string name="days_left">Pozostało dni</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
-    <string name="download">Pobierz</string>
-    <string name="upload">Wyślij</string>
+    <string name="download_success">Dane pobrane poprawnie</string>
+    <string name="upload_success">Dane wysłane poprawnie</string>
+    <string name="download_error">Błąd pobierania danych</string>
+    <string name="upload_error">Błąd wysyłania danych</string>
+    <string name="log_in">Zaloguj się</string>
+    <string name="log_out">Wyloguj się</string>
+    <string name="unique_identifier">Identyfikator użytkownika</string>
+    <string name="randomize">Losowy</string>
     <plurals name="days_fmt">
         <item quantity="one">(%1$d dzień)</item>
         <item quantity="few">(%1$d dni)</item>

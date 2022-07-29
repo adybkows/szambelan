@@ -18,8 +18,14 @@
     <string name="days_left">Days left</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
-    <string name="download">Download</string>
-    <string name="upload">Upload</string>
+    <string name="download_success">Download successful</string>
+    <string name="upload_success">Upload successful</string>
+    <string name="download_error">Download error</string>
+    <string name="upload_error">Upload error</string>
+    <string name="log_in">Log In</string>
+    <string name="log_out">Log Out</string>
+    <string name="unique_identifier">Unique Identifier</string>
+    <string name="randomize">Randomize</string>
     <plurals name="days_fmt">
         <item quantity="one">(%1$d day)</item>
         <item quantity="other">(%1$d days)</item>
