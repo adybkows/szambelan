@@ -6,7 +6,8 @@ import androidx.compose.runtime.Composable
 
 private val DarkColorPalette = darkColors(
     primary = PrimaryColor,
-    background = BackgroundColor
+    background = BackgroundColor,
+    surface = BackgroundColor
 )
 
 @Composable

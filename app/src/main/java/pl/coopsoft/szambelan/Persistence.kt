@@ -5,6 +5,7 @@ import android.content.Context
 object Persistence {
     private const val PREFERENCES_NAME = "preferences"
 
+    const val PREF_USER_ID = "user_id"
     const val PREF_EMPTY_ACTIONS = "empty_actions"
     const val PREF_OLD_MAIN = "old_main"
     const val PREF_OLD_GARDEN = "old_garden"

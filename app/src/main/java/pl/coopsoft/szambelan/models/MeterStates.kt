@@ -1,10 +1,12 @@
-package pl.coopsoft.szambelan
+package pl.coopsoft.szambelan.models
 
 import android.content.Context
+import pl.coopsoft.szambelan.R
+import pl.coopsoft.szambelan.Utils
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double) {
+data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double) {
 
     override fun toString(): String {
         return "$date;$mainMeter;$gardenMeter"

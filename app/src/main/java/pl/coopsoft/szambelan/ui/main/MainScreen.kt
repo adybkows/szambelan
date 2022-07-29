@@ -40,7 +40,7 @@ import pl.coopsoft.szambelan.Utils
 import pl.coopsoft.szambelan.ui.theme.MainTheme
 
 @Composable
-fun MainActivityScreen(
+fun MainScreen(
     prevEmptyActions: MutableState<String>,
     prevMainMeter: MutableState<String>,
     onPrevMainMeterChange: (String) -> Unit,
@@ -53,7 +53,9 @@ fun MainActivityScreen(
     waterUsage: MutableState<AnnotatedString>,
     daysLeft: MutableState<String>,
     daysLeftColor: MutableState<Color>,
-    emptyTankClicked: () -> Unit
+    emptyTankClicked: () -> Unit,
+    downloadClicked: () -> Unit,
+    uploadClicked: () -> Unit,
 ) {
     MainTheme {
         Surface(
@@ -65,6 +67,25 @@ fun MainActivityScreen(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 32.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = { downloadClicked() },
+                        modifier = Modifier.width(120.dp)
+                    ) {
+                        Text(text = stringResource(R.string.download).uppercase())
+                    }
+                    Button(
+                        onClick = { uploadClicked() },
+                        modifier = Modifier.width(120.dp)
+                    ) {
+                        Text(text = stringResource(R.string.upload).uppercase())
+                    }
+                }
                 Text(
                     text = stringResource(R.string.prev_empty_actions),
                     fontWeight = FontWeight.Bold
@@ -245,14 +266,14 @@ fun StyledText(
 }
 
 @SuppressLint("UnrememberedMutableState")
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun DefaultPreview() {
-    MainActivityScreen(
+fun MainScreenPreview() {
+    MainScreen(
         mutableStateOf("ABCD\nABCD"),
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf(AnnotatedString("90%")), mutableStateOf("1"),
-        mutableStateOf(Color.Red), {}
+        mutableStateOf(Color.Red), {}, {}, {}
     )
 }

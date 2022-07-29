@@ -3,6 +3,7 @@ package pl.coopsoft.szambelan
 import android.app.Application
 import android.content.Context
 import android.text.Editable
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -12,6 +13,9 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
+import pl.coopsoft.szambelan.communication.RemoteStorageHelper
+import pl.coopsoft.szambelan.models.DataModel
+import pl.coopsoft.szambelan.models.MeterStates
 import java.text.DecimalFormatSymbols
 import java.util.*
 import kotlin.math.roundToInt
@@ -19,16 +23,18 @@ import kotlin.math.roundToInt
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
+        private const val TAG = "MainViewModel"
         private const val FULL_CONTAINER = 6.0 // [m^3]
         private const val MS_IN_HOUR = 3600000
         private const val HOURS_WARN1 = 72
         private const val HOURS_WARN2 = 48
-        private const val MAX_METER_STATES = 7
+        private const val MAX_METER_STATES = 5
         private val COLOR_NORMAL = Color.White
         private val COLOR_WARN1 = Color(0xffff8000)
         private val COLOR_WARN2 = Color.Red
     }
 
+    var userId = ""
     val prevEmptyActions = mutableStateOf("")
     val prevMainMeter = mutableStateOf("")
     val prevGardenMeter = mutableStateOf("")
@@ -46,10 +52,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun context(): Context = getApplication<Application>()
 
     fun loadAllData() {
+        loadUserId()
         loadEditValues()
         loadMeterStates()
         showMeterStates()
         refreshCalculation()
+    }
+
+    private fun loadUserId() {
+        userId = Persistence.getString(context(), Persistence.PREF_USER_ID, "")
+        if (userId.isEmpty()) {
+            userId = UUID.randomUUID().toString()
+            Persistence.putString(context(), Persistence.PREF_USER_ID, userId)
+        }
     }
 
     private fun loadEditValues() {
@@ -61,6 +76,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Utils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_MAIN))
         currentGardenMeter.value =
             Utils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_GARDEN))
+    }
+
+    fun downloadFromRemoteStorage(done: (Boolean) -> Unit) {
+        RemoteStorageHelper.downloadData(userId) { data ->
+            if (data != null) {
+                Log.i(TAG, "Data from remote storage downloaded successfully")
+                prevMainMeter.value = Utils.toString(data.prevMainMeter)
+                prevGardenMeter.value = Utils.toString(data.prevGardenMeter)
+                currentMainMeter.value = Utils.toString(data.currentMainMeter)
+                currentGardenMeter.value = Utils.toString(data.currentGardenMeter)
+                emptyActions = data.emptyActions.toMutableList()
+                done(true)
+            } else {
+                Log.e(TAG, "Download from remote storage failed")
+                done(false)
+            }
+        }
+    }
+
+    fun uploadToRemoteStorage(done: (Boolean) -> Unit) {
+        val data = DataModel(
+            prevMainMeter = Utils.toDouble(prevMainMeter.value),
+            prevGardenMeter = Utils.toDouble(prevGardenMeter.value),
+            currentMainMeter = Utils.toDouble(currentMainMeter.value),
+            currentGardenMeter = Utils.toDouble(currentGardenMeter.value),
+            emptyActions = emptyActions
+        )
+        RemoteStorageHelper.uploadData(data, userId) { t->
+            if (t != null) {
+                Log.e(TAG, "Upload failed: $t")
+                done(false)
+            } else {
+                Log.i(TAG, "Data uploaded successfully to remote storage")
+                done(true)
+            }
+        }
     }
 
     fun saveEditValues() {
@@ -142,12 +193,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun saveMeterStates() {
+    fun saveMeterStates() {
         val data = emptyActions.joinToString(separator = "\n")
         Persistence.putString(context(), Persistence.PREF_EMPTY_ACTIONS, data)
     }
 
-    private fun showMeterStates() {
+    fun showMeterStates() {
         val text = StringBuilder()
         for (i in emptyActions.indices) {
             val line =

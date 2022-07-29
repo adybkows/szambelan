@@ -18,6 +18,8 @@
     <string name="days_left">Pozostało dni</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
+    <string name="download">Pobierz</string>
+    <string name="upload">Wyślij</string>
     <plurals name="days_fmt">
         <item quantity="one">(%1$d dzień)</item>
         <item quantity="few">(%1$d dni)</item>

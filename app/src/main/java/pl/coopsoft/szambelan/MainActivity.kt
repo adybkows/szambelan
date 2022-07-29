@@ -2,10 +2,12 @@ package pl.coopsoft.szambelan
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import pl.coopsoft.szambelan.ui.main.MainActivityScreen
+import pl.coopsoft.szambelan.ui.main.MainScreen
+import kotlin.system.exitProcess
 
 class MainActivity : ComponentActivity() {
 
@@ -17,7 +19,7 @@ class MainActivity : ComponentActivity() {
         viewModel.loadAllData()
 
         setContent {
-            MainActivityScreen(
+            MainScreen(
                 prevEmptyActions = viewModel.prevEmptyActions,
                 prevMainMeter = viewModel.prevMainMeter,
                 onPrevMainMeterChange = {
@@ -44,6 +46,30 @@ class MainActivity : ComponentActivity() {
                 daysLeftColor = viewModel.daysLeftColor,
                 emptyTankClicked = {
                     emptyTankClicked()
+                },
+                downloadClicked = {
+                    viewModel.downloadFromRemoteStorage {
+                        if (it) {
+                            viewModel.showMeterStates()
+                            viewModel.refreshCalculation()
+                            viewModel.saveEditValues()
+                            viewModel.saveMeterStates()
+                        }
+                        Toast.makeText(
+                            this,
+                            if (it) android.R.string.ok else android.R.string.httpErrorBadUrl,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                },
+                uploadClicked = {
+                    viewModel.uploadToRemoteStorage {
+                        Toast.makeText(
+                            this,
+                            if (it) android.R.string.ok else android.R.string.httpErrorBadUrl,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             )
         }

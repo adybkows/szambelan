@@ -18,6 +18,8 @@
     <string name="days_left">Days left</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
+    <string name="download">Download</string>
+    <string name="upload">Upload</string>
     <plurals name="days_fmt">
         <item quantity="one">(%1$d day)</item>
         <item quantity="other">(%1$d days)</item>
