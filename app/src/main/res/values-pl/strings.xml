@@ -24,8 +24,10 @@
     <string name="upload_error">Błąd wysyłania danych</string>
     <string name="log_in">Zaloguj się</string>
     <string name="log_out">Wyloguj się</string>
-    <string name="unique_identifier">Identyfikator użytkownika</string>
-    <string name="randomize">Losowy</string>
+    <string name="enter_email_address">Podaj adres e-mail</string>
+    <string name="email_msg_sent">Wiadomość e-mail została wysłana na podany adres. Otwórz hiperłącze przesłane w wiadomości e-mail aby kontynuować proces logowania.</string>
+    <string name="or">lub</string>
+    <string name="sign_with_google">Zaloguj się</string>
     <plurals name="days_fmt">
         <item quantity="one">(%1$d dzień)</item>
         <item quantity="few">(%1$d dni)</item>

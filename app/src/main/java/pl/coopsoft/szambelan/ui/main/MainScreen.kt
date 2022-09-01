@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import pl.coopsoft.szambelan.R
-import pl.coopsoft.szambelan.Utils
 import pl.coopsoft.szambelan.ui.theme.MainTheme
+import pl.coopsoft.szambelan.utils.FormattingUtils
 
 @Composable
 fun MainScreen(
@@ -218,7 +218,7 @@ fun MeterState(
             modifier = Modifier.padding(top = 8.dp, end = endPadding),
             value = text.value,
             onValueChange = { v ->
-                val filtered = Utils.maxOneDot(v.filter { Utils.isDigitOrDot(it) })
+                val filtered = FormattingUtils.maxOneDot(v.filter { FormattingUtils.isDigitOrDot(it) })
                 if (filtered != text.value) {
                     text.value = filtered
                     onValueChange(filtered)

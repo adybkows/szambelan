@@ -13,9 +13,12 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
-import pl.coopsoft.szambelan.communication.RemoteStorageHelper
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import pl.coopsoft.szambelan.database.DatabaseHelper
 import pl.coopsoft.szambelan.models.DataModel
 import pl.coopsoft.szambelan.models.MeterStates
+import pl.coopsoft.szambelan.utils.FormattingUtils
 import java.text.DecimalFormatSymbols
 import java.util.*
 import kotlin.math.roundToInt
@@ -34,8 +37,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private val COLOR_WARN2 = Color.Red
     }
 
-    var userId = ""
-    val loggedIn = mutableStateOf(false)
+    val loggedIn = mutableStateOf(Firebase.auth.currentUser != null)
     val prevEmptyActions = mutableStateOf("")
     val prevMainMeter = mutableStateOf("")
     val prevGardenMeter = mutableStateOf("")
@@ -60,37 +62,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshCalculation()
 
         // download data from remote storage
-        autoLogInUser(done)
-    }
-
-    private fun autoLogInUser(done: (Boolean) -> Unit) {
-        userId = Persistence.getString(context(), Persistence.PREF_USER_ID, "")
-        if (userId.isNotEmpty()) {
-            logIn(userId, done)
-        } else {
-            done(false)
+        if (loggedIn.value) {
+            downloadFromRemoteStorage {
+                if (it) {
+                    showMeterStates()
+                    refreshCalculation()
+                    saveEditValues()
+                    saveMeterStates()
+                }
+                done(it)
+            }
         }
     }
 
     private fun loadEditValues() {
         prevMainMeter.value =
-            Utils.toString(Persistence.getDouble(context(), Persistence.PREF_OLD_MAIN))
+            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_OLD_MAIN))
         prevGardenMeter.value =
-            Utils.toString(Persistence.getDouble(context(), Persistence.PREF_OLD_GARDEN))
+            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_OLD_GARDEN))
         currentMainMeter.value =
-            Utils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_MAIN))
+            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_MAIN))
         currentGardenMeter.value =
-            Utils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_GARDEN))
+            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_GARDEN))
     }
 
     fun downloadFromRemoteStorage(done: (Boolean) -> Unit) {
-        RemoteStorageHelper.downloadData(userId) { data ->
+        DatabaseHelper.downloadData { data ->
             if (data != null) {
                 Log.i(TAG, "Data from remote storage downloaded successfully")
-                prevMainMeter.value = Utils.toString(data.prevMainMeter)
-                prevGardenMeter.value = Utils.toString(data.prevGardenMeter)
-                currentMainMeter.value = Utils.toString(data.currentMainMeter)
-                currentGardenMeter.value = Utils.toString(data.currentGardenMeter)
+                prevMainMeter.value = FormattingUtils.toString(data.prevMainMeter)
+                prevGardenMeter.value = FormattingUtils.toString(data.prevGardenMeter)
+                currentMainMeter.value = FormattingUtils.toString(data.currentMainMeter)
+                currentGardenMeter.value = FormattingUtils.toString(data.currentGardenMeter)
                 emptyActions = data.emptyActions.toMutableList()
                 done(true)
             } else {
@@ -102,13 +105,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun uploadToRemoteStorage(done: (Boolean) -> Unit) {
         val data = DataModel(
-            prevMainMeter = Utils.toDouble(prevMainMeter.value),
-            prevGardenMeter = Utils.toDouble(prevGardenMeter.value),
-            currentMainMeter = Utils.toDouble(currentMainMeter.value),
-            currentGardenMeter = Utils.toDouble(currentGardenMeter.value),
+            prevMainMeter = FormattingUtils.toDouble(prevMainMeter.value),
+            prevGardenMeter = FormattingUtils.toDouble(prevGardenMeter.value),
+            currentMainMeter = FormattingUtils.toDouble(currentMainMeter.value),
+            currentGardenMeter = FormattingUtils.toDouble(currentGardenMeter.value),
             emptyActions = emptyActions
         )
-        RemoteStorageHelper.uploadData(data, userId) { t ->
+        DatabaseHelper.uploadData(data) { t ->
             if (t != null) {
                 Log.e(TAG, "Upload failed: $t")
                 done(false)
@@ -122,27 +125,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveEditValues() {
         Persistence.putDouble(
             context(), Persistence.PREF_OLD_MAIN,
-            Utils.toDouble(prevMainMeter.value)
+            FormattingUtils.toDouble(prevMainMeter.value)
         )
         Persistence.putDouble(
             context(), Persistence.PREF_OLD_GARDEN,
-            Utils.toDouble(prevGardenMeter.value)
+            FormattingUtils.toDouble(prevGardenMeter.value)
         )
         Persistence.putDouble(
             context(), Persistence.PREF_CURRENT_MAIN,
-            Utils.toDouble(currentMainMeter.value)
+            FormattingUtils.toDouble(currentMainMeter.value)
         )
         Persistence.putDouble(
             context(), Persistence.PREF_CURRENT_GARDEN,
-            Utils.toDouble(currentGardenMeter.value)
+            FormattingUtils.toDouble(currentGardenMeter.value)
         )
     }
 
     fun refreshCalculation() {
-        val prevMain = Utils.toDouble(prevMainMeter.value)
-        val prevGarden = Utils.toDouble(prevGardenMeter.value)
-        val currentMain = Utils.toDouble(currentMainMeter.value)
-        val currentGarden = Utils.toDouble(currentGardenMeter.value)
+        val prevMain = FormattingUtils.toDouble(prevMainMeter.value)
+        val prevGarden = FormattingUtils.toDouble(prevGardenMeter.value)
+        val currentMain = FormattingUtils.toDouble(currentMainMeter.value)
+        val currentGarden = FormattingUtils.toDouble(currentGardenMeter.value)
         val usage = currentMain - prevMain - (currentGarden - prevGarden)
         val usageText = String.format(Locale.getDefault(), "%1$.2f", usage)
         val percentage = (usage * 100.0 / FULL_CONTAINER).roundToInt()
@@ -164,7 +167,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 (System.currentTimeMillis() - lastEmptyAction.date) / MS_IN_HOUR
             val hoursTotal = hours * 100 / percentage
             val hoursLeft = hoursTotal - hours
-            daysLeft.value = Utils.toDaysHours(context(), hoursLeft)
+            daysLeft.value = FormattingUtils.toDaysHours(context(), hoursLeft)
             daysLeftColor.value = when {
                 hoursLeft < HOURS_WARN2 -> COLOR_WARN2
                 hoursLeft < HOURS_WARN1 -> COLOR_WARN1
@@ -236,28 +239,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val meterStates = MeterStates(
             date = System.currentTimeMillis(),
-            mainMeter = Utils.toDouble(prevMainMeter.value),
-            gardenMeter = Utils.toDouble(prevGardenMeter.value)
+            mainMeter = FormattingUtils.toDouble(prevMainMeter.value),
+            gardenMeter = FormattingUtils.toDouble(prevGardenMeter.value)
         )
         emptyActions.add(meterStates)
         saveMeterStates()
         showMeterStates()
-    }
-
-    fun logIn(newUserId: String, done: (Boolean) -> Unit) {
-        if (newUserId.isNotEmpty()) {
-            Persistence.putString(context(), Persistence.PREF_USER_ID, userId)
-            userId = newUserId
-            loggedIn.value = true
-            downloadFromRemoteStorage {
-                if (it) {
-                    showMeterStates()
-                    refreshCalculation()
-                    saveEditValues()
-                    saveMeterStates()
-                }
-                done(it)
-            }
-        }
     }
 }

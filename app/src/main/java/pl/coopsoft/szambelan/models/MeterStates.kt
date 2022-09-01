@@ -2,11 +2,13 @@ package pl.coopsoft.szambelan.models
 
 import android.content.Context
 import pl.coopsoft.szambelan.R
-import pl.coopsoft.szambelan.Utils
+import pl.coopsoft.szambelan.utils.FormattingUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double) {
+
+    constructor() : this(0L, 0.0, 0.0)
 
     override fun toString(): String {
         return "$date;$mainMeter;$gardenMeter"
@@ -15,8 +17,8 @@ data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: D
     fun toVisibleString(context: Context, prev: MeterStates?): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dateStr = dateFormat.format(Date(date))
-        val mainStr = Utils.toString(mainMeter)
-        val gardenStr = Utils.toString(gardenMeter)
+        val mainStr = FormattingUtils.toString(mainMeter)
+        val gardenStr = FormattingUtils.toString(gardenMeter)
         val days =
             if (prev == null)
                 ""

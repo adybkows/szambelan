@@ -6,4 +6,6 @@ data class DataModel(
     val currentMainMeter: Double,
     val currentGardenMeter: Double,
     val emptyActions: List<MeterStates>
-)
+) {
+    constructor() : this(0.0, 0.0, 0.0, 0.0, emptyList())
+}

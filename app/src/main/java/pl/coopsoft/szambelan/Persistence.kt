@@ -1,11 +1,12 @@
 package pl.coopsoft.szambelan
 
 import android.content.Context
+import pl.coopsoft.szambelan.utils.FormattingUtils
 
 object Persistence {
     private const val PREFERENCES_NAME = "preferences"
 
-    const val PREF_USER_ID = "user_id"
+    const val PREF_USER_EMAIL = "user_email"
     const val PREF_EMPTY_ACTIONS = "empty_actions"
     const val PREF_OLD_MAIN = "old_main"
     const val PREF_OLD_GARDEN = "old_garden"
@@ -15,7 +16,7 @@ object Persistence {
     private fun getPrefs(context: Context) =
         context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
-    fun getString(context: Context, key: String, defValue: String = Utils.toString(0.0)) =
+    fun getString(context: Context, key: String, defValue: String = FormattingUtils.toString(0.0)) =
         getPrefs(context).getString(key, defValue) ?: defValue
 
     fun putString(context: Context, key: String, value: String) =
@@ -25,7 +26,7 @@ object Persistence {
         try {
             getPrefs(context).getFloat(key, defValue.toFloat()).toDouble()
         } catch (e: ClassCastException) {
-            Utils.toDouble(getString(context, key, defValue.toString()))
+            FormattingUtils.toDouble(getString(context, key, defValue.toString()))
         }
 
     fun putDouble(context: Context, key: String, value: Double) =

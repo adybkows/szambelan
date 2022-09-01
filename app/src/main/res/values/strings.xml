@@ -4,6 +4,7 @@
     ]>
 <resources>
     <string name="app_name">Septic Tank</string>
+    <string name="gcp_id" translatable="false">13670608697-m4rufvg05to4rqr5k7mreolq24fdpnlh.apps.googleusercontent.com</string>
     <string name="prev_empty_actions">Previous tank empty actions</string>
     <string name="last_state">Meter states from last tank empty action</string>
     <string name="main_meter">Main water meter</string>
@@ -24,8 +25,10 @@
     <string name="upload_error">Upload error</string>
     <string name="log_in">Log In</string>
     <string name="log_out">Log Out</string>
-    <string name="unique_identifier">Unique Identifier</string>
-    <string name="randomize">Randomize</string>
+    <string name="enter_email_address">Enter e-mail address</string>
+    <string name="email_msg_sent">An e-mail message was sent to the provided address. Please click the link in that e-mail message on this device to continue login process.</string>
+    <string name="or">or</string>
+    <string name="sign_with_google">Sign in</string>
     <plurals name="days_fmt">
         <item quantity="one">(%1$d day)</item>
         <item quantity="other">(%1$d days)</item>

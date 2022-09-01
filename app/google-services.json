@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "13670608697",
+    "firebase_url": "https://szambelan-e5292-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "szambelan-e5292",
+    "storage_bucket": "szambelan-e5292.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13670608697:android:13ddd8b843a59b4022c2e8",
+        "android_client_info": {
+          "package_name": "pl.coopsoft.szambelan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "13670608697-agdjjl29p4j0ns012agd380t1eaj34ua.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pl.coopsoft.szambelan",
+            "certificate_hash": "a6cac0efc60e89b460335cfd48091882114d70dc"
+          }
+        },
+        {
+          "client_id": "13670608697-m4rufvg05to4rqr5k7mreolq24fdpnlh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5U4sMHrG6vIFJ1AdXfpN_cRmqp9NW5sc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "13670608697-m4rufvg05to4rqr5k7mreolq24fdpnlh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
