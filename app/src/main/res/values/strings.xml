@@ -19,6 +19,12 @@
     <string name="days_left">Days left</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
+    <string name="download_data">Download the data</string>
+    <string name="download_question">Do you wish to download the data from the server?  This will replace currently shown values.</string>
+    <string name="upload_data">Download the data</string>
+    <string name="upload_question">Do you wish to upload the data to the server?  This will replace previous contents.</string>
+    <string name="download">Download</string>
+    <string name="upload">Upload</string>
     <string name="download_success">Download successful</string>
     <string name="upload_success">Upload successful</string>
     <string name="download_error">Download error</string>

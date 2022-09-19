@@ -54,25 +54,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun context(): Context = getApplication<Application>()
 
-    fun loadAllData(done: (Boolean) -> Unit) {
+    fun loadSavedData() {
         // load and show data from shared preferences
         loadEditValues()
         loadMeterStates()
         showMeterStates()
         refreshCalculation()
-
-        // download data from remote storage
-        if (loggedIn.value) {
-            downloadFromRemoteStorage {
-                if (it) {
-                    showMeterStates()
-                    refreshCalculation()
-                    saveEditValues()
-                    saveMeterStates()
-                }
-                done(it)
-            }
-        }
     }
 
     private fun loadEditValues() {

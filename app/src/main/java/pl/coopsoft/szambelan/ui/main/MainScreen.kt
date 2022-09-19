@@ -1,12 +1,8 @@
 package pl.coopsoft.szambelan.ui.main
 
 import android.annotation.SuppressLint
-import android.util.TypedValue
-import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,6 +17,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.ui.theme.MainTheme
 import pl.coopsoft.szambelan.utils.FormattingUtils
@@ -52,7 +48,9 @@ fun MainScreen(
     daysLeft: MutableState<String>,
     daysLeftColor: MutableState<Color>,
     emptyTankClicked: () -> Unit,
-    logInOutClicked: () -> Unit
+    logInOutClicked: () -> Unit,
+    downloadClicked: () -> Unit,
+    uploadClicked: () -> Unit
 ) {
     MainTheme {
         Surface(
@@ -64,21 +62,50 @@ fun MainScreen(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                Button(
-                    onClick = { logInOutClicked() },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = if (loggedIn) Color.Red else Color.Green
-                    ),
+                Row(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(bottom = 24.dp)
-                        .align(Alignment.CenterHorizontally)
                 ) {
-                    Text(
-                        text = stringResource(
-                            if (loggedIn) R.string.log_out else R.string.log_in
-                        ).uppercase(),
-                        color = if (loggedIn) Color.White else Color.Black
-                    )
+                    if (loggedIn) {
+                        Button(
+                            onClick = downloadClicked,
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = Color.Transparent
+                            )
+                        ) {
+                            Image(
+                                painterResource(R.drawable.ic_download),
+                                stringResource(R.string.download)
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SimpleTextButton(
+                            text = stringResource(
+                                if (loggedIn) R.string.log_out else R.string.log_in
+                            ).uppercase(),
+                            textColor = if (loggedIn) Color.White else Color.Black,
+                            bgColor = if (loggedIn) Color.Red else Color.Green,
+                            onClick = logInOutClicked
+                        )
+                    }
+                    if (loggedIn) {
+                        Button(
+                            onClick = uploadClicked,
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = Color.Transparent
+                            )
+                        ) {
+                            Image(
+                                painterResource(R.drawable.ic_upload),
+                                stringResource(R.string.upload)
+                            )
+                        }
+                    }
                 }
                 Text(
                     text = stringResource(R.string.prev_empty_actions),
@@ -218,7 +245,8 @@ fun MeterState(
             modifier = Modifier.padding(top = 8.dp, end = endPadding),
             value = text.value,
             onValueChange = { v ->
-                val filtered = FormattingUtils.maxOneDot(v.filter { FormattingUtils.isDigitOrDot(it) })
+                val filtered =
+                    FormattingUtils.maxOneDot(v.filter { FormattingUtils.isDigitOrDot(it) })
                 if (filtered != text.value) {
                     text.value = filtered
                     onValueChange(filtered)
@@ -238,25 +266,25 @@ fun MeterState(
 }
 
 @Composable
-fun StyledText(
-    text: CharSequence, @ColorInt color: Int, sizeSp: Float, modifier: Modifier = Modifier
+fun SimpleTextButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    textColor: Color,
+    bgColor: Color,
+    onClick: () -> Unit
 ) {
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            TextView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                setTextColor(color)
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
-            }
-        },
-        update = {
-            it.text = text
-        }
-    )
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = bgColor
+        ),
+        modifier = modifier
+    ) {
+        Text(
+            text = text,
+            color = textColor
+        )
+    }
 }
 
 @SuppressLint("UnrememberedMutableState")
@@ -264,11 +292,11 @@ fun StyledText(
 @Composable
 fun MainScreenPreview() {
     MainScreen(
-        false,
+        true,
         mutableStateOf("ABCD\nABCD"),
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf(AnnotatedString("90%")), mutableStateOf("1"),
-        mutableStateOf(Color.Red), {}, {}
+        mutableStateOf(Color.Red), {}, {}, {}, {}
     )
 }

@@ -34,15 +34,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.loadAllData {
-            if (viewModel.loggedIn.value) {
-                Toast.makeText(
-                    this,
-                    if (it) R.string.download_success else R.string.download_error,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
+        viewModel.loadSavedData()
 
         setContent {
             val navController = rememberNavController()
@@ -58,7 +50,7 @@ class MainActivity : ComponentActivity() {
             if (email.isNotEmpty()) {
                 EmailSignInHelper.handleDeepLinks(email, intentData) {
                     if (it) {
-                        loggedInDownloadData()
+                        loggedInSuccessfully()
                     }
                 }
             }
@@ -103,6 +95,12 @@ class MainActivity : ComponentActivity() {
                     Firebase.auth.signOut()
                     viewModel.loggedIn.value = false
                 }
+            },
+            downloadClicked = {
+                downloadClicked()
+            },
+            uploadClicked = {
+                uploadClicked()
             }
         )
     }
@@ -114,7 +112,7 @@ class MainActivity : ComponentActivity() {
         val googleSignInClient = GoogleSignInHelper.googleSignInClient(this)
         val googleSignInLauncher = GoogleSignInHelper.googleSignInLauncher(googleSignInClient) {
             if (it) {
-                loggedInDownloadData()
+                loggedInSuccessfully()
                 navController.popBackStack()
             }
         }
@@ -145,15 +143,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onBackPressed() {
         viewModel.saveEditValues()
-        if (viewModel.loggedIn.value) {
-            viewModel.uploadToRemoteStorage {
-                Toast.makeText(
-                    this,
-                    if (it) R.string.upload_success else R.string.upload_error,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
         @Suppress("DEPRECATION")
         super.onBackPressed()
     }
@@ -161,6 +150,60 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         viewModel.saveEditValues()
         super.onDestroy()
+    }
+
+    private fun downloadClicked() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.download_data)
+            .setMessage(R.string.download_question)
+            .setCancelable(true)
+            .setPositiveButton(R.string.yes) { dialog, _ ->
+                dialog.dismiss()
+                viewModel.downloadFromRemoteStorage {
+                    if (it) {
+                        viewModel.showMeterStates()
+                        viewModel.refreshCalculation()
+                        viewModel.saveEditValues()
+                        viewModel.saveMeterStates()
+                    }
+                    Toast.makeText(
+                        this,
+                        if (it) R.string.download_success else R.string.download_error,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setOnCancelListener { dialog ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun uploadClicked() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.upload_data)
+            .setMessage(R.string.upload_question)
+            .setCancelable(true)
+            .setPositiveButton(R.string.yes) { dialog, _ ->
+                dialog.dismiss()
+                viewModel.uploadToRemoteStorage {
+                    Toast.makeText(
+                        this,
+                        if (it) R.string.upload_success else R.string.upload_error,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setOnCancelListener { dialog ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun emptyTankClicked() {
@@ -181,20 +224,7 @@ class MainActivity : ComponentActivity() {
             .show()
     }
 
-    private fun loggedInDownloadData() {
+    private fun loggedInSuccessfully() {
         viewModel.loggedIn.value = true
-        viewModel.downloadFromRemoteStorage {
-            if (it) {
-                viewModel.showMeterStates()
-                viewModel.refreshCalculation()
-                viewModel.saveEditValues()
-                viewModel.saveMeterStates()
-            }
-            Toast.makeText(
-                this,
-                if (it) R.string.download_success else R.string.download_error,
-                Toast.LENGTH_LONG
-            ).show()
-        }
     }
 }

@@ -18,6 +18,12 @@
     <string name="days_left">Pozostało dni</string>
     <string name="dd">d</string>
     <string name="hh">h</string>
+    <string name="download_data">Pobranie danych</string>
+    <string name="download_question">Czy chcesz pobrać dane z serwera?  Spowoduje to zastąpienie obecnie wyświetlonych wartości.</string>
+    <string name="upload_data">Wysyłanie danych</string>
+    <string name="upload_question">Czy chcesz wysłać dane na serwer?  Dane poprzednio zapamiętane na serwerze zostaną zastąpione nowymi.</string>
+    <string name="download">Pobierz</string>
+    <string name="upload">Wyślij</string>
     <string name="download_success">Dane pobrane poprawnie</string>
     <string name="upload_success">Dane wysłane poprawnie</string>
     <string name="download_error">Błąd pobierania danych</string>
