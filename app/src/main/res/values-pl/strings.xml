@@ -9,12 +9,13 @@
     <string name="main_meter">Wodomierz główny</string>
     <string name="garden_meter">Wodomierz ogrodowy</string>
     <string name="current_state">Bieżący stan wodomierzy</string>
-    <string name="output_result">Stan zapełnienia zbiornika</string>
+    <string name="output_result">Stan zapełnienia</string>
     <string name="empty_tank">Opróżnienie zbiornika</string>
     <string name="empty_tank_question">Czy opróżniono zbiornik?\n\nSpowoduje skopiowanie bieżących stanów wodomierzy do stanów zapamiętanych.</string>
     <string name="yes">Tak</string>
     <string name="cancel">Anuluj</string>
     <string name="no_data">&lt;BRAK DANYCH&gt;</string>
+    <string name="days_passed">Upłynęło już</string>
     <string name="days_left">Pozostało dni</string>
     <string name="dd">d</string>
     <string name="hh">h</string>

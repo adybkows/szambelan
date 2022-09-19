@@ -45,6 +45,7 @@ fun MainScreen(
     currentGardenMeter: MutableState<String>,
     onCurrentGardenMeterChange: (String) -> Unit,
     waterUsage: MutableState<AnnotatedString>,
+    daysSince: MutableState<String>,
     daysLeft: MutableState<String>,
     daysLeftColor: MutableState<Color>,
     emptyTankClicked: () -> Unit,
@@ -139,7 +140,7 @@ fun MainScreen(
                         .fillMaxWidth()
                         .padding(top = 48.dp)
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth(0.5f)) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = stringResource(R.string.output_result),
                             fontWeight = FontWeight.Bold
@@ -151,7 +152,21 @@ fun MainScreen(
                         )
                     }
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.days_passed),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            modifier = Modifier.padding(top = 8.dp),
+                            text = daysSince.value,
+                            fontSize = 24.sp
+                        )
+                    }
+                    Column(
+                        modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.End
                     ) {
                         Text(
@@ -296,7 +311,8 @@ fun MainScreenPreview() {
         mutableStateOf("ABCD\nABCD"),
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
-        mutableStateOf(AnnotatedString("90%")), mutableStateOf("1"),
-        mutableStateOf(Color.Red), {}, {}, {}, {}
+        mutableStateOf(AnnotatedString("90%")), mutableStateOf("10"),
+        mutableStateOf("1"), mutableStateOf(Color.Red),
+        {}, {}, {}, {}
     )
 }

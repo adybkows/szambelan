@@ -16,6 +16,7 @@
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="no_data">&lt;NO DATA&gt;</string>
+    <string name="days_passed">Days passed</string>
     <string name="days_left">Days left</string>
     <string name="dd">d</string>
     <string name="hh">h</string>

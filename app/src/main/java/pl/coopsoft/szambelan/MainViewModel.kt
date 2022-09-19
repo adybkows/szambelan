@@ -44,6 +44,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val currentMainMeter = mutableStateOf("")
     val currentGardenMeter = mutableStateOf("")
     val waterUsage = mutableStateOf(AnnotatedString(""))
+    val daysSince = mutableStateOf("")
     val daysLeft = mutableStateOf("")
     val daysLeftColor = mutableStateOf(COLOR_NORMAL)
 
@@ -152,6 +153,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val lastEmptyAction = emptyActions.last()
             val hours =
                 (System.currentTimeMillis() - lastEmptyAction.date) / MS_IN_HOUR
+            daysSince.value = FormattingUtils.toDaysHours(context(), hours)
             val hoursTotal = hours * 100 / percentage
             val hoursLeft = hoursTotal - hours
             daysLeft.value = FormattingUtils.toDaysHours(context(), hoursLeft)

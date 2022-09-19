@@ -83,6 +83,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.refreshCalculation()
             },
             waterUsage = viewModel.waterUsage,
+            daysSince = viewModel.daysSince,
             daysLeft = viewModel.daysLeft,
             daysLeftColor = viewModel.daysLeftColor,
             emptyTankClicked = {
