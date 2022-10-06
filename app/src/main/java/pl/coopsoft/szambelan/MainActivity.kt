@@ -1,9 +1,8 @@
 package pl.coopsoft.szambelan
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
@@ -55,6 +54,13 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                viewModel.saveEditValues()
+                finish()
+            }
+        })
     }
 
     @Composable
@@ -142,87 +148,65 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    override fun onBackPressed() {
-        viewModel.saveEditValues()
-        @Suppress("DEPRECATION")
-        super.onBackPressed()
-    }
-
-    override fun onDestroy() {
-        viewModel.saveEditValues()
-        super.onDestroy()
-    }
-
     private fun downloadClicked() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.download_data)
-            .setMessage(R.string.download_question)
-            .setCancelable(true)
-            .setPositiveButton(R.string.yes) { dialog, _ ->
-                dialog.dismiss()
-                viewModel.downloadFromRemoteStorage {
-                    if (it) {
-                        viewModel.showMeterStates()
-                        viewModel.refreshCalculation()
-                        viewModel.saveEditValues()
-                        viewModel.saveMeterStates()
-                    }
-                    Toast.makeText(
-                        this,
-                        if (it) R.string.download_success else R.string.download_error,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+        DialogUtils.showQuestionDialog(
+            context = this,
+            title = R.string.download_data,
+            message = R.string.download_question,
+            yesClicked = {
+                downloadData()
             }
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.dismiss()
+        )
+    }
+
+    private fun downloadData() {
+        val dialog = DialogUtils.showInProgressDialog(this, R.string.download_in_progress)
+        viewModel.downloadFromRemoteStorage {
+            dialog.dismiss()
+            if (it) {
+                viewModel.showMeterStates()
+                viewModel.refreshCalculation()
+                viewModel.saveEditValues()
+                viewModel.saveMeterStates()
             }
-            .setOnCancelListener { dialog ->
-                dialog.dismiss()
-            }
-            .show()
+            DialogUtils.showOKDialog(
+                this,
+                if (it) R.string.download_success else R.string.download_error
+            )
+        }
     }
 
     private fun uploadClicked() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.upload_data)
-            .setMessage(R.string.upload_question)
-            .setCancelable(true)
-            .setPositiveButton(R.string.yes) { dialog, _ ->
-                dialog.dismiss()
-                viewModel.uploadToRemoteStorage {
-                    Toast.makeText(
-                        this,
-                        if (it) R.string.upload_success else R.string.upload_error,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+        DialogUtils.showQuestionDialog(
+            context = this,
+            title = R.string.upload_data,
+            message = R.string.upload_question,
+            yesClicked = {
+                uploadData()
             }
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setOnCancelListener { dialog ->
-                dialog.dismiss()
-            }
-            .show()
+        )
+    }
+
+    private fun uploadData() {
+        val dialog = DialogUtils.showInProgressDialog(this, R.string.upload_in_progress)
+        viewModel.uploadToRemoteStorage {
+            dialog.dismiss()
+            DialogUtils.showOKDialog(
+                this,
+                if (it) R.string.upload_success else R.string.upload_error
+            )
+        }
     }
 
     private fun emptyTankClicked() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.empty_tank)
-            .setMessage(R.string.empty_tank_question)
-            .setCancelable(true)
-            .setPositiveButton(R.string.yes) { dialog, _ ->
-                dialog.dismiss()
+        DialogUtils.showQuestionDialog(
+            context = this,
+            title = R.string.empty_tank,
+            message = R.string.empty_tank_question,
+            yesClicked = {
                 viewModel.emptyTank()
             }
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setOnCancelListener { dialog ->
-                dialog.dismiss()
-            }
-            .show()
+        )
     }
 
     private fun loggedInSuccessfully() {

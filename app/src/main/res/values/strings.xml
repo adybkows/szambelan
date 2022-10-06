@@ -13,6 +13,7 @@
     <string name="output_result">Tank contains</string>
     <string name="empty_tank">Empty the tank</string>
     <string name="empty_tank_question">Is the tank empty now?  Current meter states will be saved as previous states.</string>
+    <string name="ok">OK</string>
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="no_data">&lt;NO DATA&gt;</string>
@@ -22,10 +23,12 @@
     <string name="hh">h</string>
     <string name="download_data">Download the data</string>
     <string name="download_question">Do you wish to download the data from the server?  This will replace currently shown values.</string>
-    <string name="upload_data">Download the data</string>
+    <string name="upload_data">Upload the data</string>
     <string name="upload_question">Do you wish to upload the data to the server?  This will replace previous contents.</string>
     <string name="download">Download</string>
     <string name="upload">Upload</string>
+    <string name="download_in_progress">Downloading data…</string>
+    <string name="upload_in_progress">Uploading data…</string>
     <string name="download_success">Download successful</string>
     <string name="upload_success">Upload successful</string>
     <string name="download_error">Download error</string>

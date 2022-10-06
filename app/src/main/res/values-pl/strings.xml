@@ -12,6 +12,7 @@
     <string name="output_result">Stan zapełnienia</string>
     <string name="empty_tank">Opróżnienie zbiornika</string>
     <string name="empty_tank_question">Czy opróżniono zbiornik?\n\nSpowoduje skopiowanie bieżących stanów wodomierzy do stanów zapamiętanych.</string>
+    <string name="ok">OK</string>
     <string name="yes">Tak</string>
     <string name="cancel">Anuluj</string>
     <string name="no_data">&lt;BRAK DANYCH&gt;</string>
@@ -25,6 +26,8 @@
     <string name="upload_question">Czy chcesz wysłać dane na serwer?  Dane poprzednio zapamiętane na serwerze zostaną zastąpione nowymi.</string>
     <string name="download">Pobierz</string>
     <string name="upload">Wyślij</string>
+    <string name="download_in_progress">Pobieranie danych…</string>
+    <string name="upload_in_progress">Wysyłanie danych…</string>
     <string name="download_success">Dane pobrane poprawnie</string>
     <string name="upload_success">Dane wysłane poprawnie</string>
     <string name="download_error">Błąd pobierania danych</string>
