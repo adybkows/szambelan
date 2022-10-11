@@ -20,7 +20,7 @@ import pl.coopsoft.szambelan.models.DataModel
 import pl.coopsoft.szambelan.models.MeterStates
 import pl.coopsoft.szambelan.utils.FormattingUtils
 import java.text.DecimalFormatSymbols
-import java.util.*
+import java.util.Locale
 import kotlin.math.roundToInt
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -149,18 +149,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     append("  ($percentage%)")
                 }
 
-        if (emptyActions.isNotEmpty() && percentage > 0) {
+        if (emptyActions.isNotEmpty()) {
             val lastEmptyAction = emptyActions.last()
             val hours =
                 (System.currentTimeMillis() - lastEmptyAction.date) / MS_IN_HOUR
             daysSince.value = FormattingUtils.toDaysHours(context(), hours)
-            val hoursTotal = hours * 100 / percentage
-            val hoursLeft = hoursTotal - hours
-            daysLeft.value = FormattingUtils.toDaysHours(context(), hoursLeft)
-            daysLeftColor.value = when {
-                hoursLeft < HOURS_WARN2 -> COLOR_WARN2
-                hoursLeft < HOURS_WARN1 -> COLOR_WARN1
-                else -> COLOR_NORMAL
+            if (percentage > 0) {
+                val hoursTotal = hours * 100 / percentage
+                val hoursLeft = hoursTotal - hours
+                daysLeft.value = FormattingUtils.toDaysHours(context(), hoursLeft)
+                daysLeftColor.value = when {
+                    hoursLeft < HOURS_WARN2 -> COLOR_WARN2
+                    hoursLeft < HOURS_WARN1 -> COLOR_WARN1
+                    else -> COLOR_NORMAL
+                }
+            } else {
+                daysLeft.value = ""
             }
         } else {
             daysLeft.value = ""
