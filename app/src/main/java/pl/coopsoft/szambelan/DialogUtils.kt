@@ -3,8 +3,9 @@ package pl.coopsoft.szambelan
 import android.app.AlertDialog
 import android.content.Context
 import androidx.annotation.StringRes
+import javax.inject.Inject
 
-object DialogUtils {
+class DialogUtils @Inject constructor() {
 
     fun showQuestionDialog(
         context: Context, @StringRes title: Int, @StringRes message: Int,

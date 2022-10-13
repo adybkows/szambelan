@@ -14,12 +14,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import pl.coopsoft.szambelan.ui.login.LoginScreen
 import pl.coopsoft.szambelan.ui.main.MainScreen
 import pl.coopsoft.szambelan.utils.EmailSignInHelper
 import pl.coopsoft.szambelan.utils.GoogleSignInHelper
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private companion object {
@@ -29,6 +32,18 @@ class MainActivity : ComponentActivity() {
     }
 
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject
+    lateinit var dialogUtils: DialogUtils
+
+    @Inject
+    lateinit var emailSignInHelper: EmailSignInHelper
+
+    @Inject
+    lateinit var googleSignInHelper: GoogleSignInHelper
+
+    @Inject
+    lateinit var persistence: Persistence
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,9 +60,9 @@ class MainActivity : ComponentActivity() {
         }
 
         intent.data?.let { intentData ->
-            val email = Persistence.getString(this, Persistence.PREF_USER_EMAIL, "")
+            val email = persistence.getString(this, Persistence.PREF_USER_EMAIL, "")
             if (email.isNotEmpty()) {
-                EmailSignInHelper.handleDeepLinks(email, intentData) {
+                emailSignInHelper.handleDeepLinks(email, intentData) {
                     if (it) {
                         loggedInSuccessfully()
                     }
@@ -116,8 +131,8 @@ class MainActivity : ComponentActivity() {
     private fun LoginScreen(navController: NavController) {
         val email = remember { mutableStateOf("") }
         val emailSent = remember { mutableStateOf(false) }
-        val googleSignInClient = GoogleSignInHelper.googleSignInClient(this)
-        val googleSignInLauncher = GoogleSignInHelper.googleSignInLauncher(googleSignInClient) {
+        val googleSignInClient = googleSignInHelper.googleSignInClient(this)
+        val googleSignInLauncher = googleSignInHelper.googleSignInLauncher(googleSignInClient) {
             if (it) {
                 loggedInSuccessfully()
                 navController.popBackStack()
@@ -131,17 +146,17 @@ class MainActivity : ComponentActivity() {
             emailSent = emailSent.value,
             emailLogInClicked = {
                 if (email.value.isNotEmpty()) {
-                    EmailSignInHelper.emailSignIn(email.value) {
+                    emailSignInHelper.emailSignIn(email.value) {
                         if (it) {
                             emailSent.value = true
-                            Persistence.putString(this, Persistence.PREF_USER_EMAIL, email.value)
+                            persistence.putString(this, Persistence.PREF_USER_EMAIL, email.value)
                         }
                     }
                 }
             },
             googleSignInClicked = {
                 emailSent.value = false
-                GoogleSignInHelper.googleSignIn(
+                googleSignInHelper.googleSignIn(
                     this, googleSignInClient, googleSignInLauncher, getString(R.string.gcp_id)
                 )
             }
@@ -149,7 +164,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun downloadClicked() {
-        DialogUtils.showQuestionDialog(
+        dialogUtils.showQuestionDialog(
             context = this,
             title = R.string.download_data,
             message = R.string.download_question,
@@ -160,7 +175,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun downloadData() {
-        val dialog = DialogUtils.showInProgressDialog(this, R.string.download_in_progress)
+        val dialog = dialogUtils.showInProgressDialog(this, R.string.download_in_progress)
         viewModel.downloadFromRemoteStorage {
             dialog.dismiss()
             if (it) {
@@ -169,7 +184,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.saveEditValues()
                 viewModel.saveMeterStates()
             }
-            DialogUtils.showOKDialog(
+            dialogUtils.showOKDialog(
                 this,
                 if (it) R.string.download_success else R.string.download_error
             )
@@ -177,7 +192,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun uploadClicked() {
-        DialogUtils.showQuestionDialog(
+        dialogUtils.showQuestionDialog(
             context = this,
             title = R.string.upload_data,
             message = R.string.upload_question,
@@ -188,10 +203,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun uploadData() {
-        val dialog = DialogUtils.showInProgressDialog(this, R.string.upload_in_progress)
+        val dialog = dialogUtils.showInProgressDialog(this, R.string.upload_in_progress)
         viewModel.uploadToRemoteStorage {
             dialog.dismiss()
-            DialogUtils.showOKDialog(
+            dialogUtils.showOKDialog(
                 this,
                 if (it) R.string.upload_success else R.string.upload_error
             )
@@ -199,7 +214,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun emptyTankClicked() {
-        DialogUtils.showQuestionDialog(
+        dialogUtils.showQuestionDialog(
             context = this,
             title = R.string.empty_tank,
             message = R.string.empty_tank_question,

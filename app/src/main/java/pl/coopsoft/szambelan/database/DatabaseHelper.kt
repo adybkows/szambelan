@@ -5,11 +5,14 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import pl.coopsoft.szambelan.models.DataModel
+import javax.inject.Inject
 
-object DatabaseHelper {
+class DatabaseHelper @Inject constructor() {
 
-    private val DATABASE_URL =
-        "https://${FirebaseApp.getInstance().options.projectId}-default-rtdb.europe-west1.firebasedatabase.app"
+    private companion object {
+        private val DATABASE_URL =
+            "https://${FirebaseApp.getInstance().options.projectId}-default-rtdb.europe-west1.firebasedatabase.app"
+    }
 
     fun downloadData(done: (DataModel?) -> Unit) {
         val database = Firebase.database(DATABASE_URL).reference

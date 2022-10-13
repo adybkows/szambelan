@@ -2,9 +2,10 @@ package pl.coopsoft.szambelan.utils
 
 import android.content.Context
 import pl.coopsoft.szambelan.R
-import java.util.*
+import java.util.Locale
+import javax.inject.Inject
 
-object FormattingUtils {
+class FormattingUtils @Inject constructor() {
     fun toDouble(s: String) =
         s.replace(',', '.').toDoubleOrNull() ?: 0.0
 

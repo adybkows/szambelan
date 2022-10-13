@@ -6,10 +6,13 @@ import com.google.firebase.auth.ktx.actionCodeSettings
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import pl.coopsoft.szambelan.BuildConfig
+import javax.inject.Inject
 
-object EmailSignInHelper {
+class EmailSignInHelper @Inject constructor() {
 
-    private const val TAG = "EmailSignInHelper"
+    private companion object {
+        private const val TAG = "EmailSignInHelper"
+    }
 
     fun emailSignIn(email: String, onEmailSent: (ok: Boolean) -> Unit) {
         val actionCodeSettings = actionCodeSettings {

@@ -3,12 +3,21 @@ package pl.coopsoft.szambelan.ui.main
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -28,9 +37,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import pl.coopsoft.szambelan.MainViewModel
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.ui.theme.MainTheme
-import pl.coopsoft.szambelan.utils.FormattingUtils
 
 @Composable
 fun MainScreen(
@@ -250,6 +260,7 @@ fun MeterState(
     onValueChange: (String) -> Unit,
     isLast: Boolean
 ) {
+    val formattingUtils = (hiltViewModel() as MainViewModel).formattingUtils
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier = modifier) {
@@ -261,7 +272,7 @@ fun MeterState(
             value = text.value,
             onValueChange = { v ->
                 val filtered =
-                    FormattingUtils.maxOneDot(v.filter { FormattingUtils.isDigitOrDot(it) })
+                    formattingUtils.maxOneDot(v.filter { formattingUtils.isDigitOrDot(it) })
                 if (filtered != text.value) {
                     text.value = filtered
                     onValueChange(filtered)

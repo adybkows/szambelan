@@ -4,7 +4,8 @@ import android.content.Context
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.utils.FormattingUtils
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double) {
 
@@ -14,11 +15,15 @@ data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: D
         return "$date;$mainMeter;$gardenMeter"
     }
 
-    fun toVisibleString(context: Context, prev: MeterStates?): String {
+    fun toVisibleString(
+        context: Context,
+        formattingUtils: FormattingUtils,
+        prev: MeterStates?
+    ): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dateStr = dateFormat.format(Date(date))
-        val mainStr = FormattingUtils.toString(mainMeter)
-        val gardenStr = FormattingUtils.toString(gardenMeter)
+        val mainStr = formattingUtils.toString(mainMeter)
+        val gardenStr = formattingUtils.toString(gardenMeter)
         val days =
             if (prev == null)
                 ""

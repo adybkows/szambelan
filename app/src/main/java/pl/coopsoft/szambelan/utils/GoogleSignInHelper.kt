@@ -15,10 +15,13 @@ import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import javax.inject.Inject
 
-object GoogleSignInHelper {
+class GoogleSignInHelper @Inject constructor() {
 
-    private const val TAG = "GoogleSignInHelper"
+    private companion object {
+        private const val TAG = "GoogleSignInHelper"
+    }
 
     fun googleSignInClient(activity: Activity) =
         Identity.getSignInClient(activity)

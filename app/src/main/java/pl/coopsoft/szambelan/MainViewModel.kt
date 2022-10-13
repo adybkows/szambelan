@@ -15,15 +15,22 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import pl.coopsoft.szambelan.database.DatabaseHelper
 import pl.coopsoft.szambelan.models.DataModel
 import pl.coopsoft.szambelan.models.MeterStates
 import pl.coopsoft.szambelan.utils.FormattingUtils
 import java.text.DecimalFormatSymbols
 import java.util.Locale
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    application: Application,
+    private val persistence: Persistence,
+    val formattingUtils: FormattingUtils
+) : AndroidViewModel(application) {
 
     companion object {
         private const val TAG = "MainViewModel"
@@ -53,6 +60,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private var emptyActions = mutableListOf<MeterStates>()
 
+    @Inject
+    lateinit var databaseHelper: DatabaseHelper
+
     private fun context(): Context = getApplication<Application>()
 
     fun loadSavedData() {
@@ -65,23 +75,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadEditValues() {
         prevMainMeter.value =
-            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_OLD_MAIN))
+            formattingUtils.toString(persistence.getDouble(context(), Persistence.PREF_OLD_MAIN))
         prevGardenMeter.value =
-            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_OLD_GARDEN))
+            formattingUtils.toString(persistence.getDouble(context(), Persistence.PREF_OLD_GARDEN))
         currentMainMeter.value =
-            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_MAIN))
+            formattingUtils.toString(
+                persistence.getDouble(
+                    context(),
+                    Persistence.PREF_CURRENT_MAIN
+                )
+            )
         currentGardenMeter.value =
-            FormattingUtils.toString(Persistence.getDouble(context(), Persistence.PREF_CURRENT_GARDEN))
+            formattingUtils.toString(
+                persistence.getDouble(
+                    context(),
+                    Persistence.PREF_CURRENT_GARDEN
+                )
+            )
     }
 
     fun downloadFromRemoteStorage(done: (Boolean) -> Unit) {
-        DatabaseHelper.downloadData { data ->
+        databaseHelper.downloadData { data ->
             if (data != null) {
                 Log.i(TAG, "Data from remote storage downloaded successfully")
-                prevMainMeter.value = FormattingUtils.toString(data.prevMainMeter)
-                prevGardenMeter.value = FormattingUtils.toString(data.prevGardenMeter)
-                currentMainMeter.value = FormattingUtils.toString(data.currentMainMeter)
-                currentGardenMeter.value = FormattingUtils.toString(data.currentGardenMeter)
+                prevMainMeter.value = formattingUtils.toString(data.prevMainMeter)
+                prevGardenMeter.value = formattingUtils.toString(data.prevGardenMeter)
+                currentMainMeter.value = formattingUtils.toString(data.currentMainMeter)
+                currentGardenMeter.value = formattingUtils.toString(data.currentGardenMeter)
                 emptyActions = data.emptyActions.toMutableList()
                 done(true)
             } else {
@@ -93,13 +113,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun uploadToRemoteStorage(done: (Boolean) -> Unit) {
         val data = DataModel(
-            prevMainMeter = FormattingUtils.toDouble(prevMainMeter.value),
-            prevGardenMeter = FormattingUtils.toDouble(prevGardenMeter.value),
-            currentMainMeter = FormattingUtils.toDouble(currentMainMeter.value),
-            currentGardenMeter = FormattingUtils.toDouble(currentGardenMeter.value),
+            prevMainMeter = formattingUtils.toDouble(prevMainMeter.value),
+            prevGardenMeter = formattingUtils.toDouble(prevGardenMeter.value),
+            currentMainMeter = formattingUtils.toDouble(currentMainMeter.value),
+            currentGardenMeter = formattingUtils.toDouble(currentGardenMeter.value),
             emptyActions = emptyActions
         )
-        DatabaseHelper.uploadData(data) { t ->
+        databaseHelper.uploadData(data) { t ->
             if (t != null) {
                 Log.e(TAG, "Upload failed: $t")
                 done(false)
@@ -111,29 +131,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun saveEditValues() {
-        Persistence.putDouble(
+        persistence.putDouble(
             context(), Persistence.PREF_OLD_MAIN,
-            FormattingUtils.toDouble(prevMainMeter.value)
+            formattingUtils.toDouble(prevMainMeter.value)
         )
-        Persistence.putDouble(
+        persistence.putDouble(
             context(), Persistence.PREF_OLD_GARDEN,
-            FormattingUtils.toDouble(prevGardenMeter.value)
+            formattingUtils.toDouble(prevGardenMeter.value)
         )
-        Persistence.putDouble(
+        persistence.putDouble(
             context(), Persistence.PREF_CURRENT_MAIN,
-            FormattingUtils.toDouble(currentMainMeter.value)
+            formattingUtils.toDouble(currentMainMeter.value)
         )
-        Persistence.putDouble(
+        persistence.putDouble(
             context(), Persistence.PREF_CURRENT_GARDEN,
-            FormattingUtils.toDouble(currentGardenMeter.value)
+            formattingUtils.toDouble(currentGardenMeter.value)
         )
     }
 
     fun refreshCalculation() {
-        val prevMain = FormattingUtils.toDouble(prevMainMeter.value)
-        val prevGarden = FormattingUtils.toDouble(prevGardenMeter.value)
-        val currentMain = FormattingUtils.toDouble(currentMainMeter.value)
-        val currentGarden = FormattingUtils.toDouble(currentGardenMeter.value)
+        val prevMain = formattingUtils.toDouble(prevMainMeter.value)
+        val prevGarden = formattingUtils.toDouble(prevGardenMeter.value)
+        val currentMain = formattingUtils.toDouble(currentMainMeter.value)
+        val currentGarden = formattingUtils.toDouble(currentGardenMeter.value)
         val usage = currentMain - prevMain - (currentGarden - prevGarden)
         val usageText = String.format(Locale.getDefault(), "%1$.2f", usage)
         val percentage = (usage * 100.0 / FULL_CONTAINER).roundToInt()
@@ -153,11 +173,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val lastEmptyAction = emptyActions.last()
             val hours =
                 (System.currentTimeMillis() - lastEmptyAction.date) / MS_IN_HOUR
-            daysSince.value = FormattingUtils.toDaysHours(context(), hours)
+            daysSince.value = formattingUtils.toDaysHours(context(), hours)
             if (percentage > 0) {
                 val hoursTotal = hours * 100 / percentage
                 val hoursLeft = hoursTotal - hours
-                daysLeft.value = FormattingUtils.toDaysHours(context(), hoursLeft)
+                daysLeft.value = formattingUtils.toDaysHours(context(), hoursLeft)
                 daysLeftColor.value = when {
                     hoursLeft < HOURS_WARN2 -> COLOR_WARN2
                     hoursLeft < HOURS_WARN1 -> COLOR_WARN1
@@ -184,7 +204,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         s.replace(wrongDecimalSeparator, decimalSeparator)
 
     private fun loadMeterStates() {
-        val lines = Persistence.getString(context(), Persistence.PREF_EMPTY_ACTIONS, "")
+        val lines = persistence.getString(context(), Persistence.PREF_EMPTY_ACTIONS, "")
             .split('\n')
             .filterNot { it.isEmpty() }
         if (lines.isEmpty()) {
@@ -196,14 +216,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun saveMeterStates() {
         val data = emptyActions.joinToString(separator = "\n")
-        Persistence.putString(context(), Persistence.PREF_EMPTY_ACTIONS, data)
+        persistence.putString(context(), Persistence.PREF_EMPTY_ACTIONS, data)
     }
 
     fun showMeterStates() {
         val text = StringBuilder()
         for (i in emptyActions.indices) {
             val line =
-                emptyActions[i].toVisibleString(context(), if (i > 0) emptyActions[i - 1] else null)
+                emptyActions[i].toVisibleString(
+                    context(), formattingUtils, if (i > 0) emptyActions[i - 1] else null
+                )
             if (text.isNotEmpty()) {
                 text.append("\n")
             }
@@ -232,8 +254,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val meterStates = MeterStates(
             date = System.currentTimeMillis(),
-            mainMeter = FormattingUtils.toDouble(prevMainMeter.value),
-            gardenMeter = FormattingUtils.toDouble(prevGardenMeter.value)
+            mainMeter = formattingUtils.toDouble(prevMainMeter.value),
+            gardenMeter = formattingUtils.toDouble(prevGardenMeter.value)
         )
         emptyActions.add(meterStates)
         saveMeterStates()

@@ -3,9 +3,11 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'com.google.gms.google-services'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
+    namespace 'pl.coopsoft.szambelan'
     compileSdkVersion 33
 
     defaultConfig {
@@ -49,7 +51,11 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-    namespace 'pl.coopsoft.szambelan'
+
+    // Allow references to generated code
+    kapt {
+        correctErrorTypes true
+    }
 }
 
 dependencies {
@@ -77,4 +83,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
     implementation 'com.google.firebase:firebase-dynamic-links-ktx'
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 }
