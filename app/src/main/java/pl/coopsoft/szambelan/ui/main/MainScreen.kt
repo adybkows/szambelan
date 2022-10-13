@@ -133,7 +133,8 @@ fun MainScreen(
                     secondName = R.string.garden_meter,
                     secondValue = prevGardenMeter,
                     onSecondValueChange = onPrevGardenMeterChange,
-                    isLast = false
+                    isLast = false,
+                    enableEdition = false
                 )
                 MeterStateBlock(
                     title = R.string.current_state,
@@ -143,7 +144,8 @@ fun MainScreen(
                     secondName = R.string.garden_meter,
                     secondValue = currentGardenMeter,
                     onSecondValueChange = onCurrentGardenMeterChange,
-                    isLast = true
+                    isLast = true,
+                    enableEdition = true
                 )
                 Row(
                     modifier = Modifier
@@ -218,7 +220,8 @@ fun MeterStateBlock(
     @StringRes secondName: Int,
     secondValue: MutableState<String>,
     onSecondValueChange: (String) -> Unit,
-    isLast: Boolean
+    isLast: Boolean,
+    enableEdition: Boolean
 ) {
     Column(modifier = modifier) {
         Text(
@@ -236,7 +239,8 @@ fun MeterStateBlock(
                 text = mainValue,
                 onValueChange = onMainValueChange,
                 endPadding = 16.dp,
-                isLast = false
+                isLast = false,
+                enableEdition = enableEdition
             )
             MeterState(
                 modifier = Modifier.padding(start = 16.dp),
@@ -244,7 +248,8 @@ fun MeterStateBlock(
                 text = secondValue,
                 onValueChange = onSecondValueChange,
                 endPadding = 0.dp,
-                isLast = isLast
+                isLast = isLast,
+                enableEdition = enableEdition
             )
         }
     }
@@ -258,7 +263,8 @@ fun MeterState(
     @StringRes name: Int,
     text: MutableState<String>,
     onValueChange: (String) -> Unit,
-    isLast: Boolean
+    isLast: Boolean,
+    enableEdition: Boolean
 ) {
     val formattingUtils = (hiltViewModel() as MainViewModel).formattingUtils
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -269,6 +275,7 @@ fun MeterState(
         )
         OutlinedTextField(
             modifier = Modifier.padding(top = 8.dp, end = endPadding),
+            enabled = enableEdition,
             value = text.value,
             onValueChange = { v ->
                 val filtered =
