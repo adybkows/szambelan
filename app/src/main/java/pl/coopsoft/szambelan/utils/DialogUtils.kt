@@ -1,8 +1,9 @@
-package pl.coopsoft.szambelan
+package pl.coopsoft.szambelan.utils
 
 import android.app.AlertDialog
 import android.content.Context
 import androidx.annotation.StringRes
+import pl.coopsoft.szambelan.R
 import javax.inject.Inject
 
 class DialogUtils @Inject constructor() {

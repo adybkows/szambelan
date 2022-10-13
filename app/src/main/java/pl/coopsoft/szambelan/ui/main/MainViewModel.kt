@@ -1,4 +1,4 @@
-package pl.coopsoft.szambelan
+package pl.coopsoft.szambelan.ui.main
 
 import android.app.Application
 import android.content.Context
@@ -16,10 +16,12 @@ import androidx.lifecycle.AndroidViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.database.DatabaseHelper
 import pl.coopsoft.szambelan.models.DataModel
 import pl.coopsoft.szambelan.models.MeterStates
 import pl.coopsoft.szambelan.utils.FormattingUtils
+import pl.coopsoft.szambelan.utils.Persistence
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 import javax.inject.Inject

@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import pl.coopsoft.szambelan.MainViewModel
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.ui.theme.MainTheme
 

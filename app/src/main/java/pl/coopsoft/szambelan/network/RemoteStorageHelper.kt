@@ -1,4 +1,4 @@
-package pl.coopsoft.szambelan.communication
+package pl.coopsoft.szambelan.network
 
 import android.util.Log
 import com.google.gson.Gson

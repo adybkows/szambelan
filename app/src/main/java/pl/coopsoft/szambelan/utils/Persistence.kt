@@ -1,7 +1,6 @@
-package pl.coopsoft.szambelan
+package pl.coopsoft.szambelan.utils
 
 import android.content.Context
-import pl.coopsoft.szambelan.utils.FormattingUtils
 import javax.inject.Inject
 
 class Persistence @Inject constructor(

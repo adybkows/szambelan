@@ -1,4 +1,4 @@
-package pl.coopsoft.szambelan
+package pl.coopsoft.szambelan.ui.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,10 +15,12 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.ui.login.LoginScreen
-import pl.coopsoft.szambelan.ui.main.MainScreen
+import pl.coopsoft.szambelan.utils.DialogUtils
 import pl.coopsoft.szambelan.utils.EmailSignInHelper
 import pl.coopsoft.szambelan.utils.GoogleSignInHelper
+import pl.coopsoft.szambelan.utils.Persistence
 import javax.inject.Inject
 
 
