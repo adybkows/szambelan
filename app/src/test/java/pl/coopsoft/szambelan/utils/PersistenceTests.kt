@@ -6,12 +6,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 class PersistenceTests {
 
-    private val formattingUtils = FormattingUtils(Locale.US)
+    private val formattingUtils = FormattingUtils()
     private val persistence = Persistence(formattingUtils)
 
     @Test

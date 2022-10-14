@@ -6,12 +6,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class FormattingUtilsTests {
 
-    private val formattingUtils = FormattingUtils(Locale.US)
+    private val formattingUtils = FormattingUtils()
 
     @Test
     fun testToDouble() {
@@ -28,11 +28,11 @@ class FormattingUtilsTests {
     }
 
     @Test
+    @Config(qualifiers = "fr")
     fun testToStringWithLocaleFR() {
-        val formattingUtilsFR = FormattingUtils(Locale.FRANCE)
-        assertThat(formattingUtilsFR.toString(0.0)).isEqualTo("0,00")
-        assertThat(formattingUtilsFR.toString(-123.0)).isEqualTo("-123,00")
-        assertThat(formattingUtilsFR.toString(4567.8901)).isEqualTo("4567,89")
+        assertThat(formattingUtils.toString(0.0)).isEqualTo("0,00")
+        assertThat(formattingUtils.toString(-123.0)).isEqualTo("-123,00")
+        assertThat(formattingUtils.toString(4567.8901)).isEqualTo("4567,89")
     }
 
     @Test

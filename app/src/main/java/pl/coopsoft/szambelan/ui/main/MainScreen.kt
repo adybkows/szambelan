@@ -263,9 +263,9 @@ fun MeterState(
     text: MutableState<String>,
     onValueChange: (String) -> Unit,
     isLast: Boolean,
-    enableEdition: Boolean
+    enableEdition: Boolean,
+    viewModel: MainViewModel = hiltViewModel()
 ) {
-    val formattingUtils = (hiltViewModel() as MainViewModel).formattingUtils
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier = modifier) {
@@ -277,8 +277,9 @@ fun MeterState(
             enabled = enableEdition,
             value = text.value,
             onValueChange = { v ->
-                val filtered =
-                    formattingUtils.maxOneDot(v.filter { formattingUtils.isDigitOrDot(it) })
+                val filtered = viewModel.formattingUtils.maxOneDot(v.filter {
+                    viewModel.formattingUtils.isDigitOrDot(it)
+                })
                 if (filtered != text.value) {
                     text.value = filtered
                     onValueChange(filtered)
