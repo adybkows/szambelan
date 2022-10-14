@@ -56,6 +56,15 @@ android {
     kapt {
         correctErrorTypes true
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources true
+            all {
+                jvmArgs "-Xmx2g"
+            }
+        }
+    }
 }
 
 dependencies {
@@ -88,4 +97,11 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
+
+    // UNIT TESTS
+    testImplementation "androidx.test.ext:junit-ktx:$junit_version"
+    testImplementation "androidx.test.ext:junit:$junit_version"
+    testImplementation 'androidx.test:core-ktx:1.4.0'
+    testImplementation 'com.google.truth:truth:1.1.3'
+    testImplementation 'org.robolectric:robolectric:4.9'
 }

@@ -18,9 +18,10 @@ data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: D
     fun toVisibleString(
         context: Context,
         formattingUtils: FormattingUtils,
+        locale: Locale,
         prev: MeterStates?
     ): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", locale)
         val dateStr = dateFormat.format(Date(date))
         val mainStr = formattingUtils.toString(mainMeter)
         val gardenStr = formattingUtils.toString(gardenMeter)

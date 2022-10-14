@@ -30,6 +30,7 @@ import kotlin.math.roundToInt
 @HiltViewModel
 class MainViewModel @Inject constructor(
     application: Application,
+    private val locale: Locale,
     private val persistence: Persistence,
     val formattingUtils: FormattingUtils
 ) : AndroidViewModel(application) {
@@ -157,7 +158,7 @@ class MainViewModel @Inject constructor(
         val currentMain = formattingUtils.toDouble(currentMainMeter.value)
         val currentGarden = formattingUtils.toDouble(currentGardenMeter.value)
         val usage = currentMain - prevMain - (currentGarden - prevGarden)
-        val usageText = String.format(Locale.getDefault(), "%1$.2f", usage)
+        val usageText = String.format(locale, "%1$.2f", usage)
         val percentage = (usage * 100.0 / FULL_CONTAINER).roundToInt()
         val superScriptStyle =
             SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)
@@ -226,7 +227,8 @@ class MainViewModel @Inject constructor(
         for (i in emptyActions.indices) {
             val line =
                 emptyActions[i].toVisibleString(
-                    context(), formattingUtils, if (i > 0) emptyActions[i - 1] else null
+                    context(), formattingUtils, locale,
+                    if (i > 0) emptyActions[i - 1] else null
                 )
             if (text.isNotEmpty()) {
                 text.append("\n")

@@ -5,12 +5,12 @@ import pl.coopsoft.szambelan.R
 import java.util.Locale
 import javax.inject.Inject
 
-class FormattingUtils @Inject constructor() {
+class FormattingUtils @Inject constructor(private val locale: Locale) {
     fun toDouble(s: String) =
         s.replace(',', '.').toDoubleOrNull() ?: 0.0
 
     fun toString(d: Double) =
-        String.format(Locale.getDefault(), "%1$.2f", d)
+        String.format(locale, "%1$.2f", d)
 
     fun toDaysHours(context: Context, hours: Long): String {
         val dd = context.getString(R.string.dd)
