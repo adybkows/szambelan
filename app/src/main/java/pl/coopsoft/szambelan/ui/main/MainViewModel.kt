@@ -13,8 +13,7 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.database.DatabaseHelper
@@ -30,6 +29,7 @@ import kotlin.math.roundToInt
 @HiltViewModel
 class MainViewModel @Inject constructor(
     application: Application,
+    private val auth: FirebaseAuth,
     private val persistence: Persistence,
     val formattingUtils: FormattingUtils
 ) : AndroidViewModel(application) {
@@ -46,7 +46,7 @@ class MainViewModel @Inject constructor(
         private val COLOR_WARN2 = Color.Red
     }
 
-    val loggedIn = mutableStateOf(Firebase.auth.currentUser != null)
+    val loggedIn = mutableStateOf(auth.currentUser != null)
     val prevEmptyActions = mutableStateOf("")
     val prevMainMeter = mutableStateOf("")
     val prevGardenMeter = mutableStateOf("")

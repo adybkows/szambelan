@@ -2,13 +2,12 @@ package pl.coopsoft.szambelan.utils
 
 import android.net.Uri
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.actionCodeSettings
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import pl.coopsoft.szambelan.BuildConfig
 import javax.inject.Inject
 
-class EmailSignInHelper @Inject constructor() {
+class EmailSignInHelper @Inject constructor(private val auth: FirebaseAuth) {
 
     private companion object {
         private const val TAG = "EmailSignInHelper"
@@ -21,7 +20,7 @@ class EmailSignInHelper @Inject constructor() {
             setIOSBundleId(BuildConfig.APPLICATION_ID)
             setAndroidPackageName(BuildConfig.APPLICATION_ID, true, "1")
         }
-        Firebase.auth.sendSignInLinkToEmail(email, actionCodeSettings)
+        auth.sendSignInLinkToEmail(email, actionCodeSettings)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "E-mail sent")
@@ -38,7 +37,6 @@ class EmailSignInHelper @Inject constructor() {
         onSignedIn: (ok: Boolean) -> Unit
     ): Boolean {
         val emailLink = intentData.toString()
-        val auth = Firebase.auth
         return if (auth.isSignInWithEmailLink(emailLink)) {
             auth.signInWithEmailLink(email, emailLink)
                 .addOnCompleteListener { task ->

@@ -12,8 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.ui.login.LoginScreen
@@ -34,6 +33,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject
+    lateinit var auth: FirebaseAuth
 
     @Inject
     lateinit var dialogUtils: DialogUtils
@@ -116,7 +118,7 @@ class MainActivity : ComponentActivity() {
                 if (!viewModel.loggedIn.value) {
                     navController.navigate(NAV_LOGIN)
                 } else {
-                    Firebase.auth.signOut()
+                    auth.signOut()
                     viewModel.loggedIn.value = false
                 }
             },

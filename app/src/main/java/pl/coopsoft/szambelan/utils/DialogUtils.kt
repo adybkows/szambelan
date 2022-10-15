@@ -11,8 +11,8 @@ class DialogUtils @Inject constructor() {
     fun showQuestionDialog(
         context: Context, @StringRes title: Int, @StringRes message: Int,
         yesClicked: () -> Unit, cancelClicked: (() -> Unit)? = null
-    ) {
-        AlertDialog.Builder(context)
+    ): AlertDialog {
+        return AlertDialog.Builder(context)
             .setTitle(title)
             .setMessage(message)
             .setCancelable(true)
@@ -47,8 +47,8 @@ class DialogUtils @Inject constructor() {
             }
             .show()
 
-    fun showOKDialog(context: Context, @StringRes message: Int) {
-        AlertDialog.Builder(context)
+    fun showOKDialog(context: Context, @StringRes message: Int): AlertDialog {
+        return AlertDialog.Builder(context)
             .setMessage(message)
             .setCancelable(true)
             .setPositiveButton(R.string.ok) { dialog, _ ->

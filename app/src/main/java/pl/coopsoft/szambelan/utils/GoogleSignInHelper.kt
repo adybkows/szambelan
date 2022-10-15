@@ -12,12 +12,11 @@ import androidx.compose.runtime.Composable
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import javax.inject.Inject
 
-class GoogleSignInHelper @Inject constructor() {
+class GoogleSignInHelper @Inject constructor(private val auth: FirebaseAuth) {
 
     private companion object {
         private const val TAG = "GoogleSignInHelper"
@@ -35,7 +34,7 @@ class GoogleSignInHelper @Inject constructor() {
                 val googleCredential = googleSignInClient.getSignInCredentialFromIntent(result.data)
                 val idToken = googleCredential.googleIdToken
                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                Firebase.auth.signInWithCredential(firebaseCredential)
+                auth.signInWithCredential(firebaseCredential)
                     .addOnCompleteListener { task ->
                         onSignedIn(task.isSuccessful)
                     }
@@ -47,6 +46,8 @@ class GoogleSignInHelper @Inject constructor() {
         googleSignInClient: SignInClient,
         googleSignInLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
         gcpId: String,
+        onSuccess: (() -> Unit)? = null,
+        onFailure: (() -> Unit)? = null
     ) {
         val signInRequest = BeginSignInRequest.builder()
             .setGoogleIdTokenRequestOptions(
@@ -64,6 +65,7 @@ class GoogleSignInHelper @Inject constructor() {
                     googleSignInLauncher.launch(
                         IntentSenderRequest.Builder(result.pendingIntent).build()
                     )
+                    onSuccess?.invoke()
                 } catch (e: IntentSender.SendIntentException) {
                     Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
                 }
@@ -72,6 +74,7 @@ class GoogleSignInHelper @Inject constructor() {
                 // No saved credentials found. Launch the One Tap sign-up flow, or
                 // do nothing and continue presenting the signed-out UI.
                 Log.d(TAG, e.localizedMessage.orEmpty())
+                onFailure?.invoke()
             }
     }
 }
