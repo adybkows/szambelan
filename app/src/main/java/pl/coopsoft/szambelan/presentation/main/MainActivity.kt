@@ -64,10 +64,14 @@ class MainActivity : ComponentActivity() {
 
         loginStateUseCase.addLoginStateListener { loggedIn ->
             viewModel.loggedIn.value = loggedIn
-            if (loggedIn) {
+            if (loggedIn && ::navController.isInitialized) {
                 navController.popBackStack(route = NavScreens.MAIN, inclusive = false)
             }
         }
     }
 
+    override fun onDestroy() {
+        loginStateUseCase.removeLoginStateListener()
+        super.onDestroy()
+    }
 }
