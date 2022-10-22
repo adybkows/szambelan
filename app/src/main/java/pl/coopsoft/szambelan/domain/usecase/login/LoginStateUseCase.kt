@@ -2,8 +2,10 @@ package pl.coopsoft.szambelan.domain.usecase.login
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
+import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
 
+@ActivityScoped
 class LoginStateUseCase @Inject constructor(
     private val auth: FirebaseAuth
 ) {
