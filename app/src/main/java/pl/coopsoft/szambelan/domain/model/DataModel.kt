@@ -1,5 +1,8 @@
 package pl.coopsoft.szambelan.domain.model
 
+import androidx.annotation.Keep
+
+@Keep
 data class DataModel(
     val prevMainMeter: Double,
     val prevGardenMeter: Double,

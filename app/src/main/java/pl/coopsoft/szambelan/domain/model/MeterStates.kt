@@ -1,12 +1,14 @@
 package pl.coopsoft.szambelan.domain.model
 
 import android.content.Context
+import androidx.annotation.Keep
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@Keep
 data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double) {
 
     constructor() : this(0L, 0.0, 0.0)
