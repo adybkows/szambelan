@@ -2,7 +2,7 @@ package pl.coopsoft.szambelan.presentation.main
 
 import android.app.Application
 import android.content.Context
-import android.text.Editable
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -75,7 +75,8 @@ class MainViewModel @Inject constructor(
     private val decimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
     private val wrongDecimalSeparator = if (decimalSeparator == '.') ',' else '.'
 
-    private var emptyActions = mutableListOf<MeterStates>()
+    @VisibleForTesting
+    internal var emptyActions = mutableListOf<MeterStates>()
 
     private fun context(): Context = getApplication<Application>()
 
@@ -87,7 +88,8 @@ class MainViewModel @Inject constructor(
         refreshCalculation()
     }
 
-    private fun loadEditValues() {
+    @VisibleForTesting
+    internal fun loadEditValues() {
         prevMainMeter.value =
             formattingUtils.toString(persistence.getDouble(context(), Persistence.PREF_OLD_MAIN))
         prevGardenMeter.value =
@@ -187,33 +189,27 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun updateDecimalSeparator(s: Editable?) {
-        if (s != null) {
-            val pos = s.indexOf(wrongDecimalSeparator)
-            if (pos >= 0) {
-                s.replace(pos, pos + 1, decimalSeparator.toString())
-            }
-        }
-    }
-
     fun updateDecimalSeparator(s: String) = s.replace(wrongDecimalSeparator, decimalSeparator)
 
-    private fun loadMeterStates() {
-        val lines = persistence.getString(context(), Persistence.PREF_EMPTY_ACTIONS, "").split('\n')
-            .filterNot { it.isEmpty() }
-        if (lines.isEmpty()) {
+    @VisibleForTesting
+    internal fun loadMeterStates() {
+        val lines = persistence.getString(context(), Persistence.PREF_EMPTY_ACTIONS, "")
+            ?.split('\n')?.filterNot { it.isEmpty() }
+        if (lines.isNullOrEmpty()) {
             emptyActions.clear()
         } else {
             emptyActions = lines.map { MeterStates.fromString(it) }.toMutableList()
         }
     }
 
-    private fun saveMeterStates() {
+    @VisibleForTesting
+    internal fun saveMeterStates() {
         val data = emptyActions.joinToString(separator = "\n")
         persistence.putString(context(), Persistence.PREF_EMPTY_ACTIONS, data)
     }
 
-    private fun showMeterStates() {
+    @VisibleForTesting
+    internal fun showMeterStates() {
         val text = StringBuilder()
         for (i in emptyActions.indices) {
             val line = emptyActions[i].toVisibleString(
@@ -229,7 +225,8 @@ class MainViewModel @Inject constructor(
             else context().getString(R.string.no_data)
     }
 
-    private fun limitLines(s: String, maxLines: Int): String {
+    @VisibleForTesting
+    internal fun limitLines(s: String, maxLines: Int): String {
         val lines = s.split('\n')
         if (lines.size <= maxLines) {
             return s
