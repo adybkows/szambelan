@@ -3,6 +3,7 @@ package pl.coopsoft.szambelan.presentation.main
 import android.app.Application
 import android.content.Context
 import android.text.Editable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -12,8 +13,12 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
 import pl.coopsoft.szambelan.core.utils.Persistence
@@ -23,6 +28,7 @@ import pl.coopsoft.szambelan.domain.usecase.login.LogOutUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.DownloadUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.UploadUseCase
 import pl.coopsoft.szambelan.presentation.NavScreens
+import pl.coopsoft.szambelan.presentation.dialogs.DialogData
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 import javax.inject.Inject
@@ -60,7 +66,7 @@ class MainViewModel @Inject constructor(
     val daysSince = mutableStateOf("")
     val daysLeft = mutableStateOf("")
     val daysLeftColor = mutableStateOf(COLOR_NORMAL)
-    val showEmptyTankQuestion = mutableStateOf(false)
+    val dialogs = mutableStateListOf<DialogData>()
 
     private val decimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
     private val wrongDecimalSeparator = if (decimalSeparator == '.') ',' else '.'
@@ -94,8 +100,8 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun downloadClicked(context: Context) {
-        downloadUseCase.askAndDownload(context) { data ->
+    fun downloadClicked() {
+        downloadUseCase.askAndDownload(this) { data ->
             prevMainMeter.value = formattingUtils.toString(data.prevMainMeter)
             prevGardenMeter.value = formattingUtils.toString(data.prevGardenMeter)
             currentMainMeter.value = formattingUtils.toString(data.currentMainMeter)
@@ -109,7 +115,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun uploadClicked(context: Context) {
+    fun uploadClicked() {
         val data = DataModel(
             prevMainMeter = formattingUtils.toDouble(prevMainMeter.value),
             prevGardenMeter = formattingUtils.toDouble(prevGardenMeter.value),
@@ -117,7 +123,7 @@ class MainViewModel @Inject constructor(
             currentGardenMeter = formattingUtils.toDouble(currentGardenMeter.value),
             emptyActions = emptyActions
         )
-        uploadUseCase.askAndUpload(context, data)
+        uploadUseCase.askAndUpload(this, data)
     }
 
     fun saveEditValues() {
@@ -229,10 +235,18 @@ class MainViewModel @Inject constructor(
     }
 
     fun emptyTankClicked() {
-        showEmptyTankQuestion.value = true
+        displayDialog(
+            DialogData(
+                title = R.string.empty_tank,
+                text = R.string.empty_tank_question,
+                positiveButton = R.string.yes,
+                negativeButton = R.string.cancel,
+                positiveButtonCallback = ::emptyTheTank
+            )
+        )
     }
 
-    fun emptyTheTank() {
+    private fun emptyTheTank() {
         prevMainMeter.value = currentMainMeter.value
         prevGardenMeter.value = currentGardenMeter.value
         refreshCalculation()
@@ -252,6 +266,23 @@ class MainViewModel @Inject constructor(
             navController.navigate(NavScreens.LOGIN)
         } else {
             logOutUseCase.logOut()
+        }
+    }
+
+    fun displayDialog(dialogData: DialogData) {
+        dialogs.add(dialogData)
+    }
+
+    fun dismissDialog(dialogData: DialogData, next: (() -> Unit)? = null) {
+        dialogs.remove(dialogData)
+        if (next != null) {
+            // wait a bit for recomposition
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(10)
+                viewModelScope.launch(Dispatchers.Main) {
+                    next()
+                }
+            }
         }
     }
 

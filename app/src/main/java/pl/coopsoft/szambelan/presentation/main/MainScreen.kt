@@ -22,13 +22,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
+import pl.coopsoft.szambelan.presentation.dialogs.DialogData
+import pl.coopsoft.szambelan.presentation.dialogs.DisplayDialogs
 import pl.coopsoft.szambelan.presentation.theme.MainTheme
 
 @Composable
@@ -66,11 +70,12 @@ fun MainScreen(
     logInOutClicked: () -> Unit,
     downloadClicked: () -> Unit,
     uploadClicked: () -> Unit,
-    emptyTheTank: () -> Unit,
     formattingUtils: FormattingUtils,
-    showEmptyTankQuestion: MutableState<Boolean>
+    dialogs: SnapshotStateList<DialogData>,
+    dismissDialog: (DialogData, (() -> Unit)?) -> Unit
 ) {
     MainTheme {
+        val dialogList = remember { dialogs }
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -217,14 +222,7 @@ fun MainScreen(
                     }
                 }
             }
-            if (showEmptyTankQuestion.value) {
-                MyAlertDialog(
-                    showDialog = showEmptyTankQuestion,
-                    title = R.string.empty_tank,
-                    text = R.string.empty_tank_question,
-                    onOK = emptyTheTank
-                )
-            }
+            DisplayDialogs(dialogList, dismissDialog)
         }
     }
 }
@@ -349,7 +347,6 @@ fun MainScreen(
     viewModel: MainViewModel,
     formattingUtils: FormattingUtils
 ) {
-    val context = LocalContext.current
     MainScreen(
         loggedIn = viewModel.loggedIn.value,
         prevEmptyActions = viewModel.prevEmptyActions,
@@ -377,13 +374,13 @@ fun MainScreen(
         daysSince = viewModel.daysSince,
         daysLeft = viewModel.daysLeft,
         daysLeftColor = viewModel.daysLeftColor,
-        emptyTankClicked = { viewModel.emptyTankClicked() },
+        emptyTankClicked = viewModel::emptyTankClicked,
         logInOutClicked = { viewModel.logInOutClicked(navController) },
-        downloadClicked = { viewModel.downloadClicked(context) },
-        uploadClicked = { viewModel.uploadClicked(context) },
-        emptyTheTank = { viewModel.emptyTheTank() },
+        downloadClicked = viewModel::downloadClicked,
+        uploadClicked = viewModel::uploadClicked,
         formattingUtils = formattingUtils,
-        showEmptyTankQuestion = viewModel.showEmptyTankQuestion
+        dialogs = viewModel.dialogs,
+        dismissDialog = viewModel::dismissDialog
     )
 }
 
@@ -398,7 +395,7 @@ fun MainScreenPreview() {
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf(AnnotatedString("90%")), mutableStateOf("10"),
         mutableStateOf("1"), mutableStateOf(Color.Red),
-        {}, {}, {}, {}, {},
-        FormattingUtils(), mutableStateOf(true)
+        {}, {}, {}, {},
+        FormattingUtils(), mutableStateListOf(), { _, _ -> }
     )
 }
