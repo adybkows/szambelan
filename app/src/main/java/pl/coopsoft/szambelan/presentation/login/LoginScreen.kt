@@ -3,6 +3,7 @@ package pl.coopsoft.szambelan.presentation.login
 import android.app.Activity
 import android.util.Patterns
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,6 +40,7 @@ import pl.coopsoft.szambelan.presentation.theme.MainTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     email: String,
     onEmailChange: (String) -> Unit,
     emailSent: Boolean,
@@ -47,7 +49,7 @@ fun LoginScreen(
 ) {
     val showGoogleSignIn = remember { mutableStateOf(true) }
     val showEmailSignIn = remember { mutableStateOf(true) }
-    MainTheme {
+    MainTheme(darkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -163,6 +165,13 @@ fun LoginScreen(viewModel: LoginViewModel) {
 
 @Preview
 @Composable
-fun LoginScreenPreview() {
-    LoginScreen("abcd@ef.gh", {}, true, {}, {})
+fun LoginScreenPreview(darkTheme: Boolean = false) {
+    LoginScreen(darkTheme, "abcd@ef.gh", {}, true, {}, {})
+
+}
+
+@Preview
+@Composable
+fun LoginScreenDarkPreview() {
+    LoginScreenPreview(true)
 }

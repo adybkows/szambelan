@@ -3,6 +3,7 @@ package pl.coopsoft.szambelan.presentation.main
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +53,7 @@ import pl.coopsoft.szambelan.presentation.theme.MainTheme
 
 @Composable
 fun MainScreen(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     loggedIn: Boolean,
     prevEmptyActions: MutableState<String>,
     prevMainMeter: MutableState<String>,
@@ -74,7 +76,7 @@ fun MainScreen(
     dialogs: SnapshotStateList<DialogData>,
     dismissDialog: (DialogData, (() -> Unit)?) -> Unit
 ) {
-    MainTheme {
+    MainTheme(darkTheme) {
         val dialogList = remember { dialogs }
         Surface(
             modifier = Modifier.fillMaxSize()
@@ -343,11 +345,13 @@ fun SimpleTextButton(
 
 @Composable
 fun MainScreen(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     navController: NavController,
     viewModel: MainViewModel,
     formattingUtils: FormattingUtils
 ) {
     MainScreen(
+        darkTheme,
         loggedIn = viewModel.loggedIn.value,
         prevEmptyActions = viewModel.prevEmptyActions,
         prevMainMeter = viewModel.prevMainMeter,
@@ -387,15 +391,35 @@ fun MainScreen(
 @SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable
-fun MainScreenPreview() {
+fun MainScreenPreview(darkTheme: Boolean = false) {
     MainScreen(
-        true,
-        mutableStateOf("ABCD\nABCD"),
-        mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
-        mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
-        mutableStateOf(AnnotatedString("90%")), mutableStateOf("10"),
-        mutableStateOf("1"), mutableStateOf(Color.Red),
-        {}, {}, {}, {},
-        FormattingUtils(), mutableStateListOf(), { _, _ -> }
+        darkTheme = darkTheme,
+        loggedIn = true,
+        prevEmptyActions = mutableStateOf("ABCD\nABCD"),
+        prevMainMeter = mutableStateOf("123,45"),
+        onPrevMainMeterChange = {},
+        prevGardenMeter = mutableStateOf("43,21"),
+        onPrevGardenMeterChange = {},
+        currentMainMeter = mutableStateOf("123,45"),
+        onCurrentMainMeterChange = {},
+        currentGardenMeter = mutableStateOf("43,21"),
+        onCurrentGardenMeterChange = {},
+        waterUsage = mutableStateOf(AnnotatedString("90%")),
+        daysSince = mutableStateOf("10"),
+        daysLeft = mutableStateOf("1"),
+        daysLeftColor = mutableStateOf(Color.Red),
+        emptyTankClicked = {},
+        logInOutClicked = {},
+        downloadClicked = {},
+        uploadClicked = {},
+        formattingUtils = FormattingUtils(),
+        dialogs = mutableStateListOf(),
+        dismissDialog = { _, _ -> }
     )
+}
+
+@Preview
+@Composable
+fun MainScreenDarkPreview() {
+    MainScreenPreview(darkTheme = true)
 }

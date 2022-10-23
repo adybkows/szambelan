@@ -45,7 +45,11 @@ class MainActivity : ComponentActivity() {
 
             NavHost(navController = navController, startDestination = NavScreens.MAIN) {
                 composable(NavScreens.MAIN) {
-                    MainScreen(navController, viewModel, formattingUtils)
+                    MainScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                        formattingUtils = formattingUtils
+                    )
                 }
                 composable(NavScreens.LOGIN) { LoginScreen(loginViewModel) }
             }
