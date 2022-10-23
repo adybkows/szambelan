@@ -229,8 +229,8 @@ class MainViewModel @Inject constructor(
         return lastLines.joinToString("\n")
     }
 
-    fun emptyTankClicked() {
-        emptyTankUseCase.askToEmptyTank {
+    fun emptyTankClicked(context: Context) {
+        emptyTankUseCase.askToEmptyTank(context) {
             prevMainMeter.value = currentMainMeter.value
             prevGardenMeter.value = currentGardenMeter.value
             refreshCalculation()

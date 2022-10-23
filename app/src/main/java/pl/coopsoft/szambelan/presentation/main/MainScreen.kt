@@ -13,11 +13,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -41,7 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
-import pl.coopsoft.szambelan.ui.theme.MainTheme
+import pl.coopsoft.szambelan.presentation.theme.MainTheme
 
 @Composable
 fun MainScreen(
@@ -84,12 +87,13 @@ fun MainScreen(
                         Button(
                             onClick = downloadClicked,
                             colors = ButtonDefaults.buttonColors(
-                                backgroundColor = Color.Transparent
+                                containerColor = Color.Transparent
                             )
                         ) {
                             Image(
-                                painterResource(R.drawable.ic_download),
-                                stringResource(R.string.download)
+                                painter = painterResource(R.drawable.ic_download),
+                                contentDescription = stringResource(R.string.download),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
                             )
                         }
                     }
@@ -110,12 +114,13 @@ fun MainScreen(
                         Button(
                             onClick = uploadClicked,
                             colors = ButtonDefaults.buttonColors(
-                                backgroundColor = Color.Transparent
+                                containerColor = Color.Transparent
                             )
                         ) {
                             Image(
-                                painterResource(R.drawable.ic_upload),
-                                stringResource(R.string.upload)
+                                painter = painterResource(R.drawable.ic_upload),
+                                contentDescription = stringResource(R.string.upload),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
                             )
                         }
                     }
@@ -262,7 +267,7 @@ fun MeterStateBlock(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MeterState(
     modifier: Modifier = Modifier,
@@ -317,7 +322,7 @@ fun SimpleTextButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = bgColor
+            containerColor = bgColor
         ),
         modifier = modifier
     ) {
@@ -362,7 +367,7 @@ fun MainScreen(
         daysSince = viewModel.daysSince,
         daysLeft = viewModel.daysLeft,
         daysLeftColor = viewModel.daysLeftColor,
-        emptyTankClicked = viewModel::emptyTankClicked,
+        emptyTankClicked = { viewModel.emptyTankClicked(context) },
         logInOutClicked = { viewModel.logInOutClicked(navController) },
         downloadClicked = { viewModel.downloadClicked(context) },
         uploadClicked = { viewModel.uploadClicked(context) },
