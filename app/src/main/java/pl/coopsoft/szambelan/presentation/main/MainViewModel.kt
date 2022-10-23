@@ -20,7 +20,6 @@ import pl.coopsoft.szambelan.core.utils.Persistence
 import pl.coopsoft.szambelan.domain.model.DataModel
 import pl.coopsoft.szambelan.domain.model.MeterStates
 import pl.coopsoft.szambelan.domain.usecase.login.LogOutUseCase
-import pl.coopsoft.szambelan.domain.usecase.tank.EmptyTankUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.DownloadUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.UploadUseCase
 import pl.coopsoft.szambelan.presentation.NavScreens
@@ -33,7 +32,6 @@ import kotlin.math.roundToInt
 class MainViewModel @Inject constructor(
     application: Application,
     private val downloadUseCase: DownloadUseCase,
-    private val emptyTankUseCase: EmptyTankUseCase,
     private val logOutUseCase: LogOutUseCase,
     private val persistence: Persistence,
     private val uploadUseCase: UploadUseCase,
@@ -62,6 +60,7 @@ class MainViewModel @Inject constructor(
     val daysSince = mutableStateOf("")
     val daysLeft = mutableStateOf("")
     val daysLeftColor = mutableStateOf(COLOR_NORMAL)
+    val showEmptyTankQuestion = mutableStateOf(false)
 
     private val decimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
     private val wrongDecimalSeparator = if (decimalSeparator == '.') ',' else '.'
@@ -229,21 +228,23 @@ class MainViewModel @Inject constructor(
         return lastLines.joinToString("\n")
     }
 
-    fun emptyTankClicked(context: Context) {
-        emptyTankUseCase.askToEmptyTank(context) {
-            prevMainMeter.value = currentMainMeter.value
-            prevGardenMeter.value = currentGardenMeter.value
-            refreshCalculation()
+    fun emptyTankClicked() {
+        showEmptyTankQuestion.value = true
+    }
 
-            val meterStates = MeterStates(
-                date = System.currentTimeMillis(),
-                mainMeter = formattingUtils.toDouble(prevMainMeter.value),
-                gardenMeter = formattingUtils.toDouble(prevGardenMeter.value)
-            )
-            emptyActions.add(meterStates)
-            saveMeterStates()
-            showMeterStates()
-        }
+    fun emptyTheTank() {
+        prevMainMeter.value = currentMainMeter.value
+        prevGardenMeter.value = currentGardenMeter.value
+        refreshCalculation()
+
+        val meterStates = MeterStates(
+            date = System.currentTimeMillis(),
+            mainMeter = formattingUtils.toDouble(prevMainMeter.value),
+            gardenMeter = formattingUtils.toDouble(prevGardenMeter.value)
+        )
+        emptyActions.add(meterStates)
+        saveMeterStates()
+        showMeterStates()
     }
 
     fun logInOutClicked(navController: NavController) {

@@ -66,7 +66,9 @@ fun MainScreen(
     logInOutClicked: () -> Unit,
     downloadClicked: () -> Unit,
     uploadClicked: () -> Unit,
-    formattingUtils: FormattingUtils
+    emptyTheTank: () -> Unit,
+    formattingUtils: FormattingUtils,
+    showEmptyTankQuestion: MutableState<Boolean>
 ) {
     MainTheme {
         Surface(
@@ -214,6 +216,14 @@ fun MainScreen(
                         Text(text = stringResource(R.string.empty_tank).uppercase())
                     }
                 }
+            }
+            if (showEmptyTankQuestion.value) {
+                MyAlertDialog(
+                    showDialog = showEmptyTankQuestion,
+                    title = R.string.empty_tank,
+                    text = R.string.empty_tank_question,
+                    onOK = emptyTheTank
+                )
             }
         }
     }
@@ -367,11 +377,13 @@ fun MainScreen(
         daysSince = viewModel.daysSince,
         daysLeft = viewModel.daysLeft,
         daysLeftColor = viewModel.daysLeftColor,
-        emptyTankClicked = { viewModel.emptyTankClicked(context) },
+        emptyTankClicked = { viewModel.emptyTankClicked() },
         logInOutClicked = { viewModel.logInOutClicked(navController) },
         downloadClicked = { viewModel.downloadClicked(context) },
         uploadClicked = { viewModel.uploadClicked(context) },
-        formattingUtils = formattingUtils
+        emptyTheTank = { viewModel.emptyTheTank() },
+        formattingUtils = formattingUtils,
+        showEmptyTankQuestion = viewModel.showEmptyTankQuestion
     )
 }
 
@@ -386,7 +398,7 @@ fun MainScreenPreview() {
         mutableStateOf("123,45"), {}, mutableStateOf("43,21"), {},
         mutableStateOf(AnnotatedString("90%")), mutableStateOf("10"),
         mutableStateOf("1"), mutableStateOf(Color.Red),
-        {}, {}, {}, {},
-        FormattingUtils()
+        {}, {}, {}, {}, {},
+        FormattingUtils(), mutableStateOf(true)
     )
 }
