@@ -45,13 +45,11 @@ class MainActivity : ComponentActivity() {
 
             NavHost(navController = navController, startDestination = NavScreens.MAIN) {
                 composable(NavScreens.MAIN) {
-                    MainScreen(
-                        navController = navController,
-                        viewModel = viewModel,
-                        formattingUtils = formattingUtils
-                    )
+                    MainScreen(navController, viewModel, formattingUtils)
                 }
-                composable(NavScreens.LOGIN) { LoginScreen(loginViewModel) }
+                composable(NavScreens.LOGIN) {
+                    LoginScreen(loginViewModel, viewModel.themeMode.value.isDarkTheme())
+                }
             }
         }
 

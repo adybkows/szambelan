@@ -56,6 +56,10 @@ class MainViewModel @Inject constructor(
         private val COLOR_WARN2 = Color.Red
     }
 
+    val themeMode = mutableStateOf(
+        persistence.getInt(application, Persistence.PREF_THEME_MODE, ThemeMode.AUTO.toInt())
+            .toThemeMode()
+    )
     val loggedIn = mutableStateOf(false)
     val prevEmptyActions = mutableStateOf("")
     val prevMainMeter = mutableStateOf("")
@@ -267,6 +271,11 @@ class MainViewModel @Inject constructor(
         } else {
             logOutUseCase.logOut()
         }
+    }
+
+    fun nextThemeMode() {
+        themeMode.value = themeMode.value.next()
+        persistence.putInt(context(), Persistence.PREF_THEME_MODE, themeMode.value.toInt())
     }
 
     fun displayDialog(dialogData: DialogData) {

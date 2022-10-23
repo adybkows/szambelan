@@ -3,7 +3,6 @@ package pl.coopsoft.szambelan.presentation.login
 import android.app.Activity
 import android.util.Patterns
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,7 +40,7 @@ import pl.coopsoft.szambelan.presentation.theme.MainTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean,
     email: String,
     onEmailChange: (String) -> Unit,
     emailSent: Boolean,
@@ -66,7 +66,7 @@ fun LoginScreen(
                             if (showGoogleSignIn.value) 1.0f else 0.25f
                         ), horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Button(
+                    OutlinedButton(
                         onClick = {
                             if (showGoogleSignIn.value) {
                                 showEmailSignIn.value = false
@@ -153,10 +153,12 @@ fun LoginScreen(
 }
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(viewModel: LoginViewModel, darkTheme: Boolean) {
     val activity = LocalContext.current as Activity
     viewModel.googleSignInInit()
-    LoginScreen(email = viewModel.email.value,
+    LoginScreen(
+        darkTheme = darkTheme,
+        email = viewModel.email.value,
         onEmailChange = { viewModel.email.value = it },
         emailSent = viewModel.emailSent.value,
         emailLogInClicked = viewModel::emailLogInClicked,

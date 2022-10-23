@@ -10,12 +10,13 @@ class Persistence @Inject constructor(
     companion object {
         private const val PREFERENCES_NAME = "preferences"
 
-        const val PREF_USER_EMAIL = "user_email"
-        const val PREF_EMPTY_ACTIONS = "empty_actions"
-        const val PREF_OLD_MAIN = "old_main"
-        const val PREF_OLD_GARDEN = "old_garden"
-        const val PREF_CURRENT_MAIN = "current_main"
         const val PREF_CURRENT_GARDEN = "current_garden"
+        const val PREF_CURRENT_MAIN = "current_main"
+        const val PREF_EMPTY_ACTIONS = "empty_actions"
+        const val PREF_OLD_GARDEN = "old_garden"
+        const val PREF_OLD_MAIN = "old_main"
+        const val PREF_THEME_MODE = "theme_mode"
+        const val PREF_USER_EMAIL = "user_email"
     }
 
     private fun getPrefs(context: Context) =
@@ -36,4 +37,10 @@ class Persistence @Inject constructor(
 
     fun putDouble(context: Context, key: String, value: Double) =
         getPrefs(context).edit().remove(key).putFloat(key, value.toFloat()).apply()
+
+    fun getInt(context: Context, key: String, defValue: Int) =
+        getPrefs(context).getInt(key, defValue)
+
+    fun putInt(context: Context, key: String, value: Int) =
+        getPrefs(context).edit().putInt(key, value).apply()
 }

@@ -3,7 +3,6 @@ package pl.coopsoft.szambelan.presentation.main
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +18,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -53,7 +52,7 @@ import pl.coopsoft.szambelan.presentation.theme.MainTheme
 
 @Composable
 fun MainScreen(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: MutableState<ThemeMode>,
     loggedIn: Boolean,
     prevEmptyActions: MutableState<String>,
     prevMainMeter: MutableState<String>,
@@ -72,11 +71,12 @@ fun MainScreen(
     logInOutClicked: () -> Unit,
     downloadClicked: () -> Unit,
     uploadClicked: () -> Unit,
+    themeIconClicked: () -> Unit,
     formattingUtils: FormattingUtils,
     dialogs: SnapshotStateList<DialogData>,
     dismissDialog: (DialogData, (() -> Unit)?) -> Unit
 ) {
-    MainTheme(darkTheme) {
+    MainTheme(themeMode.value.isDarkTheme()) {
         val dialogList = remember { dialogs }
         Surface(
             modifier = Modifier.fillMaxSize()
@@ -134,10 +134,11 @@ fun MainScreen(
                         }
                     }
                 }
-                Text(
-                    text = stringResource(R.string.prev_empty_actions),
-                    fontWeight = FontWeight.Bold
-                )
+                ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                    Text(
+                        text = stringResource(R.string.prev_empty_actions),
+                    )
+                }
                 Text(
                     text = prevEmptyActions.value
                 )
@@ -170,51 +171,51 @@ fun MainScreen(
                         .fillMaxWidth()
                         .padding(top = 48.dp)
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.output_result),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            modifier = Modifier.padding(top = 8.dp),
-                            text = waterUsage.value,
-                            fontSize = 24.sp
-                        )
-                    }
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.days_passed),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            modifier = Modifier.padding(top = 8.dp),
-                            text = daysSince.value,
-                            fontSize = 24.sp
-                        )
-                    }
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Text(
-                            text = stringResource(R.string.days_left),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            modifier = Modifier.padding(top = 8.dp),
-                            text = daysLeft.value,
-                            fontSize = 24.sp,
-                            color = daysLeftColor.value
-                        )
+                    ProvideTextStyle(MaterialTheme.typography.labelLarge) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.output_result)
+                            )
+                            Text(
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = waterUsage.value,
+                                fontSize = 24.sp,
+                                lineHeight = 24.sp
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = stringResource(R.string.days_passed)
+                            )
+                            Text(
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = daysSince.value,
+                                fontSize = 24.sp
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            Text(
+                                text = stringResource(R.string.days_left)
+                            )
+                            Text(
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = daysLeft.value,
+                                fontSize = 24.sp,
+                                color = daysLeftColor.value
+                            )
+                        }
                     }
                 }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 48.dp),
+                        .padding(top = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
@@ -224,6 +225,9 @@ fun MainScreen(
                     }
                 }
             }
+
+            DayNightSwitch(themeMode = themeMode, onClick = themeIconClicked)
+
             DisplayDialogs(dialogList, dismissDialog)
         }
     }
@@ -244,14 +248,15 @@ fun MeterStateBlock(
     formattingUtils: FormattingUtils
 ) {
     Column(modifier = modifier) {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 32.dp),
-            text = stringResource(title),
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
+        ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp),
+                text = stringResource(title),
+                textAlign = TextAlign.Center
+            )
+        }
         Row(modifier = Modifier.padding(top = 16.dp)) {
             MeterState(
                 modifier = Modifier.fillMaxWidth(0.5f),
@@ -292,9 +297,11 @@ fun MeterState(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier = modifier) {
-        Text(
-            text = stringResource(name)
-        )
+        ProvideTextStyle(MaterialTheme.typography.labelLarge) {
+            Text(
+                text = stringResource(name)
+            )
+        }
         OutlinedTextField(
             modifier = Modifier.padding(top = 8.dp, end = endPadding),
             enabled = enableEdition,
@@ -345,13 +352,12 @@ fun SimpleTextButton(
 
 @Composable
 fun MainScreen(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     navController: NavController,
     viewModel: MainViewModel,
     formattingUtils: FormattingUtils
 ) {
     MainScreen(
-        darkTheme,
+        themeMode = viewModel.themeMode,
         loggedIn = viewModel.loggedIn.value,
         prevEmptyActions = viewModel.prevEmptyActions,
         prevMainMeter = viewModel.prevMainMeter,
@@ -382,6 +388,7 @@ fun MainScreen(
         logInOutClicked = { viewModel.logInOutClicked(navController) },
         downloadClicked = viewModel::downloadClicked,
         uploadClicked = viewModel::uploadClicked,
+        themeIconClicked = viewModel::nextThemeMode,
         formattingUtils = formattingUtils,
         dialogs = viewModel.dialogs,
         dismissDialog = viewModel::dismissDialog
@@ -392,8 +399,9 @@ fun MainScreen(
 @Preview
 @Composable
 fun MainScreenPreview(darkTheme: Boolean = false) {
+    val themeMode = if (darkTheme) ThemeMode.DARK else ThemeMode.LIGHT
     MainScreen(
-        darkTheme = darkTheme,
+        themeMode = mutableStateOf(themeMode),
         loggedIn = true,
         prevEmptyActions = mutableStateOf("ABCD\nABCD"),
         prevMainMeter = mutableStateOf("123,45"),
@@ -404,7 +412,7 @@ fun MainScreenPreview(darkTheme: Boolean = false) {
         onCurrentMainMeterChange = {},
         currentGardenMeter = mutableStateOf("43,21"),
         onCurrentGardenMeterChange = {},
-        waterUsage = mutableStateOf(AnnotatedString("90%")),
+        waterUsage = mutableStateOf(AnnotatedString("5,40 m\n(90%)")),
         daysSince = mutableStateOf("10"),
         daysLeft = mutableStateOf("1"),
         daysLeftColor = mutableStateOf(Color.Red),
@@ -412,6 +420,7 @@ fun MainScreenPreview(darkTheme: Boolean = false) {
         logInOutClicked = {},
         downloadClicked = {},
         uploadClicked = {},
+        themeIconClicked = {},
         formattingUtils = FormattingUtils(),
         dialogs = mutableStateListOf(),
         dismissDialog = { _, _ -> }
