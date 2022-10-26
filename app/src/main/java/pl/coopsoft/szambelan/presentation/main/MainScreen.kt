@@ -212,21 +212,30 @@ fun MainScreen(
                         }
                     }
                 }
-                Column(
+
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(top = 16.dp)
                 ) {
-                    Button(
-                        onClick = { emptyTankClicked() }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = stringResource(R.string.empty_tank).uppercase())
+                        Button(
+                            onClick = { emptyTankClicked() }
+                        ) {
+                            Text(text = stringResource(R.string.empty_tank).uppercase())
+                        }
                     }
+
+                    DayNightSwitch(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        themeMode = themeMode,
+                        onClick = themeIconClicked
+                    )
                 }
             }
-
-            DayNightSwitch(themeMode = themeMode, onClick = themeIconClicked)
 
             DisplayDialogs(dialogList, dismissDialog)
         }
