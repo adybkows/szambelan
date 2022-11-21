@@ -50,7 +50,6 @@ class MainViewModel @Inject constructor(
         private const val MS_IN_HOUR = 3600000
         private const val HOURS_WARN1 = 72
         private const val HOURS_WARN2 = 48
-        private const val MAX_METER_STATES = 5
         private val COLOR_NORMAL = Color.White
         private val COLOR_WARN1 = Color(0xffff8000)
         private val COLOR_WARN2 = Color.Red
@@ -61,7 +60,7 @@ class MainViewModel @Inject constructor(
             .toThemeMode()
     )
     val loggedIn = mutableStateOf(false)
-    val prevEmptyActions = mutableStateOf("")
+    val prevEmptyActions = mutableStateOf<List<String>>(emptyList())
     val prevMainMeter = mutableStateOf("")
     val prevGardenMeter = mutableStateOf("")
     val currentMainMeter = mutableStateOf("")
@@ -210,19 +209,14 @@ class MainViewModel @Inject constructor(
 
     @VisibleForTesting
     internal fun showMeterStates() {
-        val text = StringBuilder()
+        val list = mutableListOf<String>()
         for (i in emptyActions.indices) {
             val line = emptyActions[i].toVisibleString(
                 context(), formattingUtils, if (i > 0) emptyActions[i - 1] else null
             )
-            if (text.isNotEmpty()) {
-                text.append("\n")
-            }
-            text.append(line)
+            list.add(line)
         }
-        prevEmptyActions.value =
-            if (text.isNotEmpty()) limitLines(text.toString(), MAX_METER_STATES)
-            else context().getString(R.string.no_data)
+        prevEmptyActions.value = list
     }
 
     @VisibleForTesting

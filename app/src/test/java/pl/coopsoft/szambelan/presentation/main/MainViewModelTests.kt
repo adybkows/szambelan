@@ -116,15 +116,17 @@ class MainViewModelTests {
     @Test
     fun testShowMeterStates() {
         mainViewModel.showMeterStates()
-        assertThat(mainViewModel.prevEmptyActions.value).isEqualTo("<NO DATA>")
+        assertThat(mainViewModel.prevEmptyActions.value).isEmpty()
 
         mainViewModel.emptyActions = EMPTY_ACTIONS
 
         mainViewModel.showMeterStates()
         assertThat(mainViewModel.prevEmptyActions.value).isEqualTo(
-            "2021-05-14  811.10  5.33\n" +
-                    "2021-05-26  820.60  9.67  (11 days)\n" +
-                    "2021-06-10  834.53  18.07  (14 days)"
+            listOf(
+                "2021-05-14  811.10  5.33",
+                "2021-05-26  820.60  9.67  (11 days)",
+                "2021-06-10  834.53  18.07  (14 days)"
+            )
         )
     }
 

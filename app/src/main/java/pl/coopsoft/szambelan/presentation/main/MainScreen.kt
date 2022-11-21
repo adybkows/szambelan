@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -49,12 +53,13 @@ import pl.coopsoft.szambelan.core.utils.FormattingUtils
 import pl.coopsoft.szambelan.presentation.dialogs.DialogData
 import pl.coopsoft.szambelan.presentation.dialogs.DisplayDialogs
 import pl.coopsoft.szambelan.presentation.theme.MainTheme
+import kotlin.math.max
 
 @Composable
 fun MainScreen(
     themeMode: MutableState<ThemeMode>,
     loggedIn: Boolean,
-    prevEmptyActions: MutableState<String>,
+    prevEmptyActions: MutableState<List<String>>,
     prevMainMeter: MutableState<String>,
     onPrevMainMeterChange: (String) -> Unit,
     prevGardenMeter: MutableState<String>,
@@ -139,9 +144,27 @@ fun MainScreen(
                         text = stringResource(R.string.prev_empty_actions),
                     )
                 }
-                Text(
-                    text = prevEmptyActions.value
-                )
+
+                if (prevEmptyActions.value.isEmpty()) {
+                    Text(text = stringResource(id = R.string.no_data))
+                } else {
+                    val lazyListState = rememberLazyListState(
+                        initialFirstVisibleItemIndex = max(0, prevEmptyActions.value.size - 1)
+                    )
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(0.dp, 120.dp)
+                    ) {
+                        items(prevEmptyActions.value) {
+                            Text(
+                                text = it
+                            )
+                        }
+                    }
+                }
+
                 MeterStateBlock(
                     title = R.string.last_state,
                     mainName = R.string.main_meter,
@@ -180,7 +203,7 @@ fun MainScreen(
                                 modifier = Modifier.padding(top = 8.dp),
                                 text = waterUsage.value,
                                 fontSize = 24.sp,
-                                lineHeight = 24.sp
+                                lineHeight = 28.sp
                             )
                         }
                         Column(
@@ -412,7 +435,7 @@ fun MainScreenPreview(darkTheme: Boolean = false) {
     MainScreen(
         themeMode = mutableStateOf(themeMode),
         loggedIn = true,
-        prevEmptyActions = mutableStateOf("ABCD\nABCD"),
+        prevEmptyActions = mutableStateOf(listOf("ABCD", "EFGH")),
         prevMainMeter = mutableStateOf("123,45"),
         onPrevMainMeterChange = {},
         prevGardenMeter = mutableStateOf("43,21"),
