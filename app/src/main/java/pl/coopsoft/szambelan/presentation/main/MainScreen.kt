@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -165,6 +166,9 @@ fun MainScreen(
                     }
                 }
 
+                Spacer(Modifier.weight(1f))
+
+/*
                 MeterStateBlock(
                     title = R.string.last_state,
                     mainName = R.string.main_meter,
@@ -177,6 +181,7 @@ fun MainScreen(
                     enableEdition = false,
                     formattingUtils = formattingUtils
                 )
+*/
                 MeterStateBlock(
                     title = R.string.current_state,
                     mainName = R.string.main_meter,
@@ -189,6 +194,9 @@ fun MainScreen(
                     enableEdition = true,
                     formattingUtils = formattingUtils
                 )
+
+                Spacer(Modifier.weight(1f))
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
