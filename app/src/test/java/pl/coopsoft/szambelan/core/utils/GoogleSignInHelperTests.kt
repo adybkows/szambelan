@@ -63,6 +63,7 @@ class GoogleSignInHelperTests {
         if (testSuccess) {
             val result = mock<BeginSignInResult>()
             val pendingIntent = mock<PendingIntent>()
+            whenever(pendingIntent.intentSender).thenReturn(mock())
             whenever(result.pendingIntent).thenReturn(pendingIntent)
             successListenerCaptor.firstValue.onSuccess(result)
             verify(googleSignInLauncher).launch(any())

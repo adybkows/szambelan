@@ -8,11 +8,11 @@ plugins {
 
 android {
     namespace 'pl.coopsoft.szambelan'
-    compileSdkVersion 33
 
     defaultConfig {
         applicationId "pl.coopsoft.szambelan"
         minSdkVersion 24
+        compileSdk 33
         targetSdkVersion 33
         versionCode 1016
         versionName "1.16"
@@ -31,12 +31,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     buildFeatures {
@@ -69,14 +69,14 @@ android {
 }
 
 dependencies {
-    implementation "androidx.activity:activity-ktx:1.6.1"
+    implementation "androidx.activity:activity-ktx:1.7.2"
 
     // Jetpack Compose
-    implementation "androidx.compose.material3:material3:1.0.1"
-    implementation "androidx.compose.material3:material3-window-size-class:1.0.1"
+    implementation "androidx.compose.material3:material3:1.1.0"
+    implementation "androidx.compose.material3:material3-window-size-class:1.1.0"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.activity:activity-compose:1.6.1"
+    implementation "androidx.activity:activity-compose:1.7.2"
     implementation "androidx.navigation:navigation-compose:2.5.3"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
@@ -87,7 +87,7 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
 
     // Google Play services
-    implementation "com.google.android.gms:play-services-auth:20.4.0"
+    implementation "com.google.android.gms:play-services-auth:20.5.0"
 
     // Firebase
     implementation platform("com.google.firebase:firebase-bom:30.3.2")
@@ -113,8 +113,8 @@ dependencies {
     testImplementation "com.google.truth:truth:1.1.3"
     testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp3_version"
     testImplementation "io.mockk:mockk:1.13.2"
-    testImplementation "org.mockito:mockito-inline:4.6.1"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
-    testImplementation "org.robolectric:robolectric:4.9"
+    testImplementation "org.mockito:mockito-inline:5.1.1"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.1.0"
+    testImplementation "org.robolectric:robolectric:4.9.2"
     kaptTest "com.google.dagger:hilt-android-compiler:$hilt_version"
 }
