@@ -2,9 +2,9 @@ package pl.coopsoft.szambelan.presentation.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
@@ -12,12 +12,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val lightColors = lightColorScheme(
+private val lightColors = lightColors(
     primary = PrimaryColor,
     onPrimary = Color.White
 )
 
-private val darkColors = darkColorScheme(
+private val darkColors = darkColors(
     primary = PrimaryColor,
     onPrimary = Color.White
 )
@@ -39,7 +39,7 @@ fun MainTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorSchemeColors,
+        colors = colorSchemeColors,
 //        typography = Typography,
 //        shapes = Shapes,
         content = content

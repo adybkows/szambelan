@@ -7,8 +7,8 @@
     <string name="color_mode">Tryb kolorów</string>
     <string name="prev_empty_actions">Poprzednie opróżnienia zbiornika</string>
     <string name="last_state">Stan wodomierzy z&nbsp;ostatniego opróżnienia&nbsp;zbiornika</string>
-    <string name="main_meter">Wodomierz główny</string>
-    <string name="garden_meter">Wodomierz ogrodowy</string>
+    <string name="main_meter">Wodomierz\ngłówny</string>
+    <string name="garden_meter">Wodomierz\nogrodowy</string>
     <string name="current_state">Bieżący stan wodomierzy</string>
     <string name="output_result">Stan zapełnienia</string>
     <string name="empty_tank">Opróżnienie zbiornika</string>

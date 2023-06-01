@@ -11,13 +11,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +36,6 @@ import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.presentation.theme.Grey44p
 import pl.coopsoft.szambelan.presentation.theme.MainTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     darkTheme: Boolean,
@@ -75,7 +73,7 @@ fun LoginScreen(
                         },
                         shape = RoundedCornerShape(2.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White
+                            backgroundColor = Color.White
                         ),
 //                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
@@ -128,7 +126,7 @@ fun LoginScreen(
                             emailLogInClicked()
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Green,
+                            backgroundColor = Color.Green,
                         ),
                         modifier = Modifier
                             .padding(top = 16.dp)

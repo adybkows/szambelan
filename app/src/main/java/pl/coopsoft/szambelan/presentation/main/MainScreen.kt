@@ -18,14 +18,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -61,10 +60,6 @@ fun MainScreen(
     themeMode: MutableState<ThemeMode>,
     loggedIn: Boolean,
     prevEmptyActions: MutableState<List<String>>,
-    prevMainMeter: MutableState<String>,
-    onPrevMainMeterChange: (String) -> Unit,
-    prevGardenMeter: MutableState<String>,
-    onPrevGardenMeterChange: (String) -> Unit,
     currentMainMeter: MutableState<String>,
     onCurrentMainMeterChange: (String) -> Unit,
     currentGardenMeter: MutableState<String>,
@@ -100,15 +95,16 @@ fun MainScreen(
                 ) {
                     if (loggedIn) {
                         Button(
+                            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp),
                             onClick = downloadClicked,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent
+                                backgroundColor = Color.Transparent
                             )
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.ic_download),
                                 contentDescription = stringResource(R.string.download),
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground)
                             )
                         }
                     }
@@ -127,20 +123,21 @@ fun MainScreen(
                     }
                     if (loggedIn) {
                         Button(
+                            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp),
                             onClick = uploadClicked,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent
+                                backgroundColor = Color.Transparent
                             )
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.ic_upload),
                                 contentDescription = stringResource(R.string.upload),
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground)
                             )
                         }
                     }
                 }
-                ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                ProvideTextStyle(MaterialTheme.typography.h6) {
                     Text(
                         text = stringResource(R.string.prev_empty_actions),
                     )
@@ -168,20 +165,6 @@ fun MainScreen(
 
                 Spacer(Modifier.weight(1f))
 
-/*
-                MeterStateBlock(
-                    title = R.string.last_state,
-                    mainName = R.string.main_meter,
-                    mainValue = prevMainMeter,
-                    onMainValueChange = onPrevMainMeterChange,
-                    secondName = R.string.garden_meter,
-                    secondValue = prevGardenMeter,
-                    onSecondValueChange = onPrevGardenMeterChange,
-                    isLast = false,
-                    enableEdition = false,
-                    formattingUtils = formattingUtils
-                )
-*/
                 MeterStateBlock(
                     title = R.string.current_state,
                     mainName = R.string.main_meter,
@@ -202,46 +185,48 @@ fun MainScreen(
                         .fillMaxWidth()
                         .padding(top = 48.dp)
                 ) {
-                    ProvideTextStyle(MaterialTheme.typography.labelLarge) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.output_result)
-                            )
-                            Text(
-                                modifier = Modifier.padding(top = 8.dp),
-                                text = waterUsage.value,
-                                fontSize = 24.sp,
-                                lineHeight = 28.sp
-                            )
-                        }
-                        Column(
+                    ProvideTextStyle(MaterialTheme.typography.subtitle1) {
+                        Text(
                             modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = stringResource(R.string.days_passed)
-                            )
-                            Text(
-                                modifier = Modifier.padding(top = 8.dp),
-                                text = daysSince.value,
-                                fontSize = 24.sp
-                            )
-                        }
-                        Column(
+                            text = stringResource(R.string.output_result)
+                        )
+                        Text(
                             modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            Text(
-                                text = stringResource(R.string.days_left)
-                            )
-                            Text(
-                                modifier = Modifier.padding(top = 8.dp),
-                                text = daysLeft.value,
-                                fontSize = 24.sp,
-                                color = daysLeftColor.value
-                            )
-                        }
+                            text = stringResource(R.string.days_passed),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(R.string.days_left),
+                            textAlign = TextAlign.End
+                        )
                     }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = waterUsage.value,
+                        fontSize = 24.sp,
+                        lineHeight = 28.sp
+                    )
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = daysSince.value,
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = daysLeft.value,
+                        fontSize = 24.sp,
+                        color = daysLeftColor.value,
+                        textAlign = TextAlign.End
+                    )
                 }
 
                 Box(
@@ -288,7 +273,7 @@ fun MeterStateBlock(
     formattingUtils: FormattingUtils
 ) {
     Column(modifier = modifier) {
-        ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+        ProvideTextStyle(MaterialTheme.typography.h6) {
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -322,7 +307,7 @@ fun MeterStateBlock(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MeterState(
     modifier: Modifier = Modifier,
@@ -337,7 +322,7 @@ fun MeterState(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier = modifier) {
-        ProvideTextStyle(MaterialTheme.typography.labelLarge) {
+        ProvideTextStyle(MaterialTheme.typography.subtitle1) {
             Text(
                 text = stringResource(name)
             )
@@ -379,7 +364,7 @@ fun SimpleTextButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = bgColor
+            backgroundColor = bgColor
         ),
         modifier = modifier
     ) {
@@ -400,16 +385,6 @@ fun MainScreen(
         themeMode = viewModel.themeMode,
         loggedIn = viewModel.loggedIn.value,
         prevEmptyActions = viewModel.prevEmptyActions,
-        prevMainMeter = viewModel.prevMainMeter,
-        onPrevMainMeterChange = {
-            viewModel.prevMainMeter.value = viewModel.updateDecimalSeparator(it)
-            viewModel.refreshCalculation()
-        },
-        prevGardenMeter = viewModel.prevGardenMeter,
-        onPrevGardenMeterChange = {
-            viewModel.prevGardenMeter.value = viewModel.updateDecimalSeparator(it)
-            viewModel.refreshCalculation()
-        },
         currentMainMeter = viewModel.currentMainMeter,
         onCurrentMainMeterChange = {
             viewModel.currentMainMeter.value = viewModel.updateDecimalSeparator(it)
@@ -444,10 +419,6 @@ fun MainScreenPreview(darkTheme: Boolean = false) {
         themeMode = mutableStateOf(themeMode),
         loggedIn = true,
         prevEmptyActions = mutableStateOf(listOf("ABCD", "EFGH")),
-        prevMainMeter = mutableStateOf("123,45"),
-        onPrevMainMeterChange = {},
-        prevGardenMeter = mutableStateOf("43,21"),
-        onPrevGardenMeterChange = {},
         currentMainMeter = mutableStateOf("123,45"),
         onCurrentMainMeterChange = {},
         currentGardenMeter = mutableStateOf("43,21"),
