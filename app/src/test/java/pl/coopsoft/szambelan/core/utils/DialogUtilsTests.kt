@@ -3,6 +3,7 @@ package pl.coopsoft.szambelan.core.utils
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Build
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -20,10 +21,12 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.robolectric.Robolectric
+import org.robolectric.annotation.Config
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.testutils.EmptyTestActivity
 
 @RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class DialogUtilsTests {
     private val dialogUtils = DialogUtils()
     private val activityScenario = ActivityScenario.launch(EmptyTestActivity::class.java)

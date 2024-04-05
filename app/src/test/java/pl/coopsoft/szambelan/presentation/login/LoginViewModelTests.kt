@@ -3,6 +3,7 @@ package pl.coopsoft.szambelan.presentation.login
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -14,10 +15,12 @@ import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import pl.coopsoft.szambelan.domain.usecase.login.EmailLogInUseCase
 import pl.coopsoft.szambelan.domain.usecase.login.GoogleSignInUseCase
 
 @RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class LoginViewModelTests {
 
     private companion object {

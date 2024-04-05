@@ -1,5 +1,6 @@
 package pl.coopsoft.szambelan.domain.repository.network
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import io.mockk.justRun
@@ -11,12 +12,14 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
 import pl.coopsoft.szambelan.core.di.Providers
 import pl.coopsoft.szambelan.domain.model.DataModel
 import pl.coopsoft.szambelan.domain.model.MeterStates
 
 @RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class RemoteStorageHelperTests {
 
     private companion object {

@@ -1,6 +1,7 @@
 package pl.coopsoft.szambelan.presentation.main
 
 import android.app.Application
+import android.os.Build
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -17,6 +18,7 @@ import org.mockito.kotlin.same
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.robolectric.annotation.Config
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
 import pl.coopsoft.szambelan.core.utils.Persistence
 import pl.coopsoft.szambelan.domain.model.DataModel
@@ -26,6 +28,7 @@ import pl.coopsoft.szambelan.domain.usecase.transfer.DownloadUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.UploadUseCase
 
 @RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class MainViewModelTests {
 
     private companion object {

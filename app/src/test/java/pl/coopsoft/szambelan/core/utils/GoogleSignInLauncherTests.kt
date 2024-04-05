@@ -1,5 +1,6 @@
 package pl.coopsoft.szambelan.core.utils
 
+import android.os.Build
 import androidx.activity.compose.setContent
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -21,9 +22,11 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.robolectric.Robolectric
+import org.robolectric.annotation.Config
 import pl.coopsoft.testutils.EmptyTestActivity
 
 @RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class GoogleSignInLauncherTests {
 
     private companion object {

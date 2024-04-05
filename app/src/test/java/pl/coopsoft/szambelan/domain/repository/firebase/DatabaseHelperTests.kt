@@ -1,5 +1,6 @@
 package pl.coopsoft.szambelan.domain.repository.firebase
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.OnFailureListener
@@ -15,9 +16,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import pl.coopsoft.szambelan.domain.model.DataModel
 
 @RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class DatabaseHelperTests {
 
     @Test
