@@ -12,10 +12,10 @@ android {
     defaultConfig {
         applicationId = "pl.coopsoft.szambelan"
         minSdk = 24
-        compileSdk = 34
-        targetSdk = 34
-        versionCode = 1018
-        versionName = "1.18"
+        compileSdk = 35
+        targetSdk = 35
+        versionCode = 1019
+        versionName = "1.19"
         buildConfigField("String", "BASE_URL", "\"" + System.getenv("SZAMBELAN_BASE_URL") + "\"")
     }
 
