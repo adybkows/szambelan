@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -23,9 +23,10 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.ProvideTextStyle
-import androidx.compose.material.Surface
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +54,6 @@ import pl.coopsoft.szambelan.core.utils.FormattingUtils
 import pl.coopsoft.szambelan.presentation.dialogs.DialogData
 import pl.coopsoft.szambelan.presentation.dialogs.DisplayDialogs
 import pl.coopsoft.szambelan.presentation.theme.MainTheme
-import kotlin.math.max
 
 @Composable
 fun MainScreen(
@@ -78,13 +78,14 @@ fun MainScreen(
     dismissDialog: (DialogData, (() -> Unit)?) -> Unit
 ) {
     MainTheme(themeMode.value.isDarkTheme()) {
-        val dialogList = remember { dialogs }
-        Surface(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Scaffold { innerPadding ->
+            val dialogList = remember { dialogs }
+
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .systemBarsPadding()
+                    .padding(innerPadding)
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
@@ -147,13 +148,14 @@ fun MainScreen(
                     Text(text = stringResource(id = R.string.no_data))
                 } else {
                     val lazyListState = rememberLazyListState(
-                        initialFirstVisibleItemIndex = max(0, prevEmptyActions.value.size - 1)
+                        initialFirstVisibleItemIndex = prevEmptyActions.value.size - 1
                     )
                     LazyColumn(
                         state = lazyListState,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(0.dp, 120.dp)
+                            .padding(vertical = 8.dp)
+                            .weight(1f)
                     ) {
                         items(prevEmptyActions.value) {
                             Text(
@@ -161,9 +163,12 @@ fun MainScreen(
                             )
                         }
                     }
+                    LaunchedEffect(prevEmptyActions.value.size) {
+                        lazyListState.animateScrollToItem(prevEmptyActions.value.size - 1)
+                    }
                 }
 
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.weight(0.2f))
 
                 MeterStateBlock(
                     title = R.string.current_state,
@@ -178,7 +183,7 @@ fun MainScreen(
                     formattingUtils = formattingUtils
                 )
 
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.weight(0.5f))
 
                 Row(
                     modifier = Modifier
