@@ -6,18 +6,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import io.mockk.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.reset
-import org.mockito.kotlin.same
-import org.mockito.kotlin.spy
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
 import pl.coopsoft.szambelan.core.utils.Persistence
@@ -26,6 +18,7 @@ import pl.coopsoft.szambelan.domain.model.MeterStates
 import pl.coopsoft.szambelan.domain.usecase.login.LogOutUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.DownloadUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.UploadUseCase
+import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
@@ -36,10 +29,6 @@ class MainViewModelTests {
         private const val CURRENT_GARDEN = 346.0
         private const val OLD_MAIN = 1234.54
         private const val OLD_GARDEN = 345.67
-        private const val CURRENT_MAIN_STR = "1240.00"
-        private const val CURRENT_GARDEN_STR = "346.00"
-        private const val OLD_MAIN_STR = "1234.54"
-        private const val OLD_GARDEN_STR = "345.67"
         private const val EMPTY_ACTIONS_STR =
             "1621006842873;811.1;5.332\n1622032134537;820.6;9.67\n1623325662207;834.53;18.07"
         private val EMPTY_ACTIONS = mutableListOf(
@@ -49,23 +38,26 @@ class MainViewModelTests {
         )
     }
 
-    private val downloadUseCase = mock<DownloadUseCase>()
-    private val logOutUseCase = mock<LogOutUseCase>()
-    private val persistence = mock<Persistence>()
-    private val uploadUseCase = mock<UploadUseCase>()
+    private val downloadUseCase = mockk<DownloadUseCase>(relaxed = true)
+    private val logOutUseCase = mockk<LogOutUseCase>(relaxed = true)
+    private val persistence = mockk<Persistence>(relaxed = true)
+    private val uploadUseCase = mockk<UploadUseCase>(relaxed = true)
     private lateinit var mainViewModel: MainViewModel
+    private val formattingUtils = FormattingUtils()
+
+    private val currentMainStr get() = formattingUtils.toString(CURRENT_MAIN)
+    private val currentGardenStr get() = formattingUtils.toString(CURRENT_GARDEN)
+    private val oldMainStr get() = formattingUtils.toString(OLD_MAIN)
+    private val oldGardenStr get() = formattingUtils.toString(OLD_GARDEN)
 
     @Before
     fun setup() {
-        reset(downloadUseCase)
-        reset(logOutUseCase)
-        reset(persistence)
-        reset(uploadUseCase)
+        Locale.setDefault(Locale.US)
         val application = ApplicationProvider.getApplicationContext<Application>()
-        mainViewModel = spy(
+        mainViewModel = spyk(
             MainViewModel(
                 application, downloadUseCase, logOutUseCase, persistence, uploadUseCase,
-                FormattingUtils()
+                formattingUtils
             )
         )
     }
@@ -74,22 +66,18 @@ class MainViewModelTests {
     fun testLoadSavedData() {
         mainViewModel.loadSavedData()
 
-        verify(mainViewModel).loadEditValues()
-        verify(mainViewModel).loadMeterStates()
-        verify(mainViewModel).showMeterStates()
-        verify(mainViewModel).refreshCalculation()
+        verify { mainViewModel["loadEditValues"]() }
+        verify { mainViewModel["loadMeterStates"]() }
+        verify { mainViewModel["showMeterStates"]() }
+        verify { mainViewModel.refreshCalculation() }
     }
 
     @Test
     fun testLoadEditValues() {
-        whenever(persistence.getDouble(any(), eq(Persistence.PREF_OLD_MAIN), any()))
-            .thenReturn(OLD_MAIN)
-        whenever(persistence.getDouble(any(), eq(Persistence.PREF_OLD_GARDEN), any()))
-            .thenReturn(OLD_GARDEN)
-        whenever(persistence.getDouble(any(), eq(Persistence.PREF_CURRENT_MAIN), any()))
-            .thenReturn(CURRENT_MAIN)
-        whenever(persistence.getDouble(any(), eq(Persistence.PREF_CURRENT_GARDEN), any()))
-            .thenReturn(CURRENT_GARDEN)
+        every { persistence.getDouble(any(), eq(Persistence.PREF_OLD_MAIN), any()) } returns OLD_MAIN
+        every { persistence.getDouble(any(), eq(Persistence.PREF_OLD_GARDEN), any()) } returns OLD_GARDEN
+        every { persistence.getDouble(any(), eq(Persistence.PREF_CURRENT_MAIN), any()) } returns CURRENT_MAIN
+        every { persistence.getDouble(any(), eq(Persistence.PREF_CURRENT_GARDEN), any()) } returns CURRENT_GARDEN
 
         assertThat(mainViewModel.prevMainMeter.value).isEmpty()
         assertThat(mainViewModel.prevGardenMeter.value).isEmpty()
@@ -98,16 +86,15 @@ class MainViewModelTests {
 
         mainViewModel.loadEditValues()
 
-        assertThat(mainViewModel.prevMainMeter.value).isEqualTo(OLD_MAIN_STR)
-        assertThat(mainViewModel.prevGardenMeter.value).isEqualTo(OLD_GARDEN_STR)
-        assertThat(mainViewModel.currentMainMeter.value).isEqualTo(CURRENT_MAIN_STR)
-        assertThat(mainViewModel.currentGardenMeter.value).isEqualTo(CURRENT_GARDEN_STR)
+        assertThat(mainViewModel.prevMainMeter.value).isEqualTo(oldMainStr)
+        assertThat(mainViewModel.prevGardenMeter.value).isEqualTo(oldGardenStr)
+        assertThat(mainViewModel.currentMainMeter.value).isEqualTo(currentMainStr)
+        assertThat(mainViewModel.currentGardenMeter.value).isEqualTo(currentGardenStr)
     }
 
     @Test
     fun testLoadMeterStates() {
-        whenever(persistence.getString(any(), eq(Persistence.PREF_EMPTY_ACTIONS), any()))
-            .thenReturn(EMPTY_ACTIONS_STR)
+        every { persistence.getString(any(), eq(Persistence.PREF_EMPTY_ACTIONS), any()) } returns EMPTY_ACTIONS_STR
 
         assertThat(mainViewModel.emptyActions).isEmpty()
 
@@ -135,15 +122,16 @@ class MainViewModelTests {
 
     @Test
     fun testRefreshCalculation() {
-        mainViewModel.prevMainMeter.value = OLD_MAIN_STR
-        mainViewModel.prevGardenMeter.value = OLD_GARDEN_STR
-        mainViewModel.currentMainMeter.value = CURRENT_MAIN_STR
-        mainViewModel.currentGardenMeter.value = CURRENT_GARDEN_STR
+        mainViewModel.prevMainMeter.value = oldMainStr
+        mainViewModel.prevGardenMeter.value = oldGardenStr
+        mainViewModel.currentMainMeter.value = currentMainStr
+        mainViewModel.currentGardenMeter.value = currentGardenStr
         mainViewModel.emptyActions.clear()
 
         mainViewModel.refreshCalculation()
 
-        assertThat(mainViewModel.waterUsage.value.toString()).isEqualTo("5.13 m3  (86%)")
+        val usageText = formattingUtils.toString(5.13)
+        assertThat(mainViewModel.waterUsage.value.toString()).isEqualTo("$usageText m3  (86%)")
         assertThat(mainViewModel.daysLeft.value).isEmpty()
 
         val now = System.currentTimeMillis()
@@ -152,7 +140,7 @@ class MainViewModelTests {
 
         mainViewModel.refreshCalculation()
 
-        assertThat(mainViewModel.waterUsage.value.toString()).isEqualTo("5.13 m3  (86%)")
+        assertThat(mainViewModel.waterUsage.value.toString()).isEqualTo("$usageText m3  (86%)")
         assertThat(mainViewModel.daysSince.value).isEqualTo("7d")
         assertThat(mainViewModel.daysLeft.value).isEqualTo("1d 3h")
         assertThat(mainViewModel.daysLeftColor.value).isEqualTo(Color.Red)
@@ -170,23 +158,23 @@ class MainViewModelTests {
             currentMainMeter = CURRENT_MAIN, currentGardenMeter = CURRENT_GARDEN,
             emptyActions = EMPTY_ACTIONS
         )
-        val callbackCaptor = argumentCaptor<(DataModel) -> Unit>()
+        val callbackSlot = slot<(DataModel) -> Unit>()
 
         mainViewModel.downloadClicked()
 
-        verify(downloadUseCase).askAndDownload(same(mainViewModel), callbackCaptor.capture())
-        callbackCaptor.firstValue.invoke(data)
+        verify { downloadUseCase.askAndDownload(any(), capture(callbackSlot)) }
+        callbackSlot.captured.invoke(data)
 
-        assertThat(mainViewModel.prevMainMeter.value).isEqualTo(OLD_MAIN_STR)
-        assertThat(mainViewModel.prevGardenMeter.value).isEqualTo(OLD_GARDEN_STR)
-        assertThat(mainViewModel.currentMainMeter.value).isEqualTo(CURRENT_MAIN_STR)
-        assertThat(mainViewModel.currentGardenMeter.value).isEqualTo(CURRENT_GARDEN_STR)
+        assertThat(mainViewModel.prevMainMeter.value).isEqualTo(oldMainStr)
+        assertThat(mainViewModel.prevGardenMeter.value).isEqualTo(oldGardenStr)
+        assertThat(mainViewModel.currentMainMeter.value).isEqualTo(currentMainStr)
+        assertThat(mainViewModel.currentGardenMeter.value).isEqualTo(currentGardenStr)
         assertThat(mainViewModel.emptyActions).isEqualTo(data.emptyActions)
 
-        verify(mainViewModel).showMeterStates()
-        verify(mainViewModel).refreshCalculation()
-        verify(mainViewModel).saveEditValues()
-        verify(mainViewModel).saveMeterStates()
+        verify { mainViewModel.showMeterStates() }
+        verify { mainViewModel.refreshCalculation() }
+        verify { mainViewModel.saveEditValues() }
+        verify { mainViewModel["saveMeterStates"]() }
     }
 
     @Test
@@ -197,37 +185,39 @@ class MainViewModelTests {
             emptyActions = EMPTY_ACTIONS
         )
 
-        mainViewModel.prevMainMeter.value = OLD_MAIN_STR
-        mainViewModel.prevGardenMeter.value = OLD_GARDEN_STR
-        mainViewModel.currentMainMeter.value = CURRENT_MAIN_STR
-        mainViewModel.currentGardenMeter.value = CURRENT_GARDEN_STR
+        mainViewModel.prevMainMeter.value = oldMainStr
+        mainViewModel.prevGardenMeter.value = oldGardenStr
+        mainViewModel.currentMainMeter.value = currentMainStr
+        mainViewModel.currentGardenMeter.value = currentGardenStr
         mainViewModel.emptyActions = EMPTY_ACTIONS
 
         mainViewModel.uploadClicked()
 
-        verify(uploadUseCase).askAndUpload(same(mainViewModel), eq(data))
+        verify { uploadUseCase.askAndUpload(any(), eq(data)) }
     }
 
     @Test
     fun testSaveEditValues() {
-        mainViewModel.prevMainMeter.value = OLD_MAIN_STR
-        mainViewModel.prevGardenMeter.value = OLD_GARDEN_STR
-        mainViewModel.currentMainMeter.value = CURRENT_MAIN_STR
-        mainViewModel.currentGardenMeter.value = CURRENT_GARDEN_STR
+        mainViewModel.prevMainMeter.value = oldMainStr
+        mainViewModel.prevGardenMeter.value = oldGardenStr
+        mainViewModel.currentMainMeter.value = currentMainStr
+        mainViewModel.currentGardenMeter.value = currentGardenStr
 
         mainViewModel.saveEditValues()
 
-        verify(persistence).putDouble(any(), eq(Persistence.PREF_OLD_MAIN), eq(OLD_MAIN))
-        verify(persistence).putDouble(any(), eq(Persistence.PREF_OLD_GARDEN), eq(OLD_GARDEN))
-        verify(persistence).putDouble(any(), eq(Persistence.PREF_CURRENT_MAIN), eq(CURRENT_MAIN))
-        verify(persistence)
-            .putDouble(any(), eq(Persistence.PREF_CURRENT_GARDEN), eq(CURRENT_GARDEN))
+        verify { persistence.putDouble(any(), eq(Persistence.PREF_OLD_MAIN), eq(OLD_MAIN)) }
+        verify { persistence.putDouble(any(), eq(Persistence.PREF_OLD_GARDEN), eq(OLD_GARDEN)) }
+        verify { persistence.putDouble(any(), eq(Persistence.PREF_CURRENT_MAIN), eq(CURRENT_MAIN)) }
+        verify { persistence.putDouble(any(), eq(Persistence.PREF_CURRENT_GARDEN), eq(CURRENT_GARDEN)) }
     }
 
     @Test
     fun testUpdateDecimalSeparator() {
-        assertThat(mainViewModel.updateDecimalSeparator("123.456")).isEqualTo("123.456")
-        assertThat(mainViewModel.updateDecimalSeparator("123,456")).isEqualTo("123.456")
+        val separator = java.text.DecimalFormatSymbols.getInstance().decimalSeparator
+        val other = if (separator == '.') ',' else '.'
+        
+        assertThat(mainViewModel.updateDecimalSeparator("123${separator}456")).isEqualTo("123${separator}456")
+        assertThat(mainViewModel.updateDecimalSeparator("123${other}456")).isEqualTo("123${separator}456")
     }
 
     @Test

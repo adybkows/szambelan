@@ -1,7 +1,7 @@
 package pl.coopsoft.szambelan.domain.repository.firebase
 
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.database.getValue
 import pl.coopsoft.szambelan.domain.model.DataModel
 import javax.inject.Inject
 

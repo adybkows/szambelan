@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.google.services)
     alias(libs.plugins.hiltAndroid)
-    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.kotlinCompose)
     alias(libs.plugins.kotlinKsp)
 }
 
@@ -11,9 +11,9 @@ android {
 
     defaultConfig {
         applicationId = "pl.coopsoft.szambelan"
-        minSdk = 24
-        compileSdk = 35
-        targetSdk = 35
+        minSdk = 26
+        compileSdk = 36
+        targetSdk = 36
         versionCode = 1019
         versionName = "1.19"
         buildConfigField("String", "BASE_URL", "\"" + System.getenv("SZAMBELAN_BASE_URL") + "\"")
@@ -36,17 +36,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
     }
 
     packaging {
@@ -88,9 +80,9 @@ dependencies {
 
     // Firebase
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.database.ktx)
-    implementation(libs.firebase.dynamic.links.ktx)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.dynamic.links)
 
     // Hilt
     implementation(libs.hilt.navigation.compose)
@@ -104,14 +96,12 @@ dependencies {
     testImplementation(libs.espresso.contrib)
     testImplementation(libs.espresso.core)
     testImplementation(libs.espresso.intents)
-    testImplementation(libs.junit.ktx)
-    testImplementation(libs.junit)
     testImplementation(libs.hilt.testing)
-    testImplementation(libs.truth)
-    testImplementation(libs.mockwebserver)
+    testImplementation(libs.junit)
+    testImplementation(libs.junit.ktx)
     testImplementation(libs.mockk)
-    testImplementation(libs.mockito.inline)
-    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockwebserver)
     testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
     kspTest(libs.hilt.compiler)
 }

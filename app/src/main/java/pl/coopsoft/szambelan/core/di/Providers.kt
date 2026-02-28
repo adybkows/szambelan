@@ -1,10 +1,10 @@
 package pl.coopsoft.szambelan.core.di
 
+import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.auth
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.database.database
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,15 +15,18 @@ import pl.coopsoft.szambelan.BuildConfig
 import pl.coopsoft.szambelan.domain.repository.network.RemoteStorageService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class Providers {
+object Providers {
 
     @Provides
+    @Singleton
     fun provideFirebaseAuth() = Firebase.auth
 
     @Provides
+    @Singleton
     fun provideDatabaseReference(): DatabaseReference {
         val databaseUrl =
             "https://${FirebaseApp.getInstance().options.projectId}-default-rtdb.europe-west1.firebasedatabase.app"
@@ -31,6 +34,7 @@ class Providers {
     }
 
     @Provides
+    @Singleton
     fun provideRemoteStorageService(baseUrl: String = BuildConfig.BASE_URL): RemoteStorageService {
         val client = OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {

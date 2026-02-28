@@ -46,7 +46,7 @@ class RemoteStorageHelperTests {
         ShadowLog.stream = System.out
         server = MockWebServer()
         server.start()
-        service = Providers().provideRemoteStorageService(server.url("/").toString())
+        service = Providers.provideRemoteStorageService(server.url("/").toString())
         remoteStorageHelper = RemoteStorageHelper(service)
     }
 

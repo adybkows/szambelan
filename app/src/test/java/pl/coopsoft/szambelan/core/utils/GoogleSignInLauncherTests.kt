@@ -10,17 +10,15 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import pl.coopsoft.testutils.EmptyTestActivity
@@ -40,13 +38,13 @@ class GoogleSignInLauncherTests {
     fun testGoogleSignInLauncher() {
         FirebaseApp.initializeApp(ApplicationProvider.getApplicationContext())
 
-        val onSignedIn = mock<(Boolean) -> Unit>()
-        val onSuccess = mock<() -> Unit>()
-        val onFailure = mock<() -> Unit>()
+        val onSignedIn = mockk<(Boolean) -> Unit>(relaxed = true)
+        val onSuccess = mockk<() -> Unit>(relaxed = true)
+        val onFailure = mockk<() -> Unit>(relaxed = true)
         val auth = Firebase.auth
         val googleSignInHelper = GoogleSignInHelper(auth)
         val googleSignInClient =
-            spy(googleSignInHelper.googleSignInClient(composeTestRule.activity))
+            spyk(googleSignInHelper.googleSignInClient(composeTestRule.activity))
 
         composeTestRule.activity.setContent {
             val googleSignInLauncher =
@@ -65,14 +63,14 @@ class GoogleSignInLauncherTests {
         composeTestRule.onNodeWithText("OK").assertIsDisplayed()
         composeTestRule.onNodeWithText("OK").performClick()
 
-        verify(googleSignInClient).beginSignIn(any())
+        verify { googleSignInClient.beginSignIn(any()) }
 
         Robolectric.flushForegroundThreadScheduler()
         Thread.sleep(100)
         Robolectric.flushForegroundThreadScheduler()
 
-        verify(onFailure).invoke()
-        verifyNoInteractions(onSuccess)
-        verifyNoInteractions(onSignedIn)
+        verify { onFailure.invoke() }
+        verify(exactly = 0) { onSuccess.invoke() }
+        verify(exactly = 0) { onSignedIn.invoke(any()) }
     }
 }

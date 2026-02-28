@@ -3,7 +3,7 @@ package pl.coopsoft.szambelan.core.utils
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.actionCodeSettings
+import com.google.firebase.auth.actionCodeSettings
 import pl.coopsoft.szambelan.BuildConfig
 import javax.inject.Inject
 

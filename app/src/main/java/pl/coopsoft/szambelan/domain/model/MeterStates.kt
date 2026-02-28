@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.annotation.Keep
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @Keep
 data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: Double) {
@@ -22,8 +22,9 @@ data class MeterStates(val date: Long, val mainMeter: Double, val gardenMeter: D
         formattingUtils: FormattingUtils,
         prev: MeterStates?
     ): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val dateStr = dateFormat.format(Date(date))
+        val instant = Instant.ofEpochMilli(date)
+        val dateStr = instant.atZone(ZoneOffset.UTC).toLocalDate()
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
         val mainStr = formattingUtils.toString(mainMeter)
         val gardenStr = formattingUtils.toString(gardenMeter)
         val days =

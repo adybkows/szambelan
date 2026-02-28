@@ -13,15 +13,12 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
@@ -43,37 +40,36 @@ class GoogleSignInHelperTests {
     }
 
     private fun testGoogleSignIn(testSuccess: Boolean) {
-        val activity = mock<Activity>()
-        val task = mock<Task<BeginSignInResult>>()
-        val googleSignInClient = mock<SignInClient>()
+        val activity = mockk<Activity>(relaxed = true)
+        val task = mockk<Task<BeginSignInResult>>()
+        val googleSignInClient = mockk<SignInClient>()
         val googleSignInLauncher =
-            mock<ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>>()
-        val successListenerCaptor = argumentCaptor<OnSuccessListener<BeginSignInResult>>()
-        val failureListenerCaptor = argumentCaptor<OnFailureListener>()
-        val auth = mock<FirebaseAuth>()
+            mockk<ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>>(relaxed = true)
+        val successListenerSlot = slot<OnSuccessListener<BeginSignInResult>>()
+        val failureListenerSlot = slot<OnFailureListener>()
+        val auth = mockk<FirebaseAuth>()
         val googleSignInHelper = GoogleSignInHelper(auth)
 
-        whenever(googleSignInClient.beginSignIn(any())).thenReturn(task)
-        whenever(task.addOnSuccessListener(any<Activity>(), any())).thenReturn(task)
-        whenever(task.addOnFailureListener(any())).thenReturn(task)
+        every { googleSignInClient.beginSignIn(any()) } returns task
+        every { task.addOnSuccessListener(any<Activity>(), any()) } returns task
+        every { task.addOnFailureListener(any<Activity>(), any()) } returns task
 
         googleSignInHelper.googleSignIn(activity, googleSignInClient, googleSignInLauncher, TEST_GCP_ID)
 
-        verify(googleSignInClient).beginSignIn(any())
-        verify(task).addOnSuccessListener(eq(activity), successListenerCaptor.capture())
-        verify(task).addOnFailureListener(eq(activity), failureListenerCaptor.capture())
+        verify { googleSignInClient.beginSignIn(any()) }
+        verify { task.addOnSuccessListener(eq(activity), capture(successListenerSlot)) }
+        verify { task.addOnFailureListener(eq(activity), capture(failureListenerSlot)) }
 
         if (testSuccess) {
-            val result = mock<BeginSignInResult>()
-            val pendingIntent = mock<PendingIntent>()
-            whenever(pendingIntent.intentSender).thenReturn(mock())
-            whenever(result.pendingIntent).thenReturn(pendingIntent)
-            successListenerCaptor.firstValue.onSuccess(result)
-            verify(googleSignInLauncher).launch(any())
+            val result = mockk<BeginSignInResult>()
+            val pendingIntent = mockk<PendingIntent>(relaxed = true)
+            every { result.pendingIntent } returns pendingIntent
+            successListenerSlot.captured.onSuccess(result)
+            verify { googleSignInLauncher.launch(any()) }
         } else {
-            val exception = mock<Exception>()
-            failureListenerCaptor.firstValue.onFailure(exception)
-            verifyNoInteractions(googleSignInLauncher)
+            val exception = mockk<Exception>(relaxed = true)
+            failureListenerSlot.captured.onFailure(exception)
+            verify(exactly = 0) { googleSignInLauncher.launch(any()) }
         }
     }
 }
