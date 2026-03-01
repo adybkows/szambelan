@@ -16,8 +16,8 @@ android {
         minSdk = 26
         compileSdk = 36
         targetSdk = 36
-        versionCode = 1019
-        versionName = "1.19"
+        versionCode = 1020
+        versionName = "1.20"
         buildConfigField("String", "BASE_URL", "\"" + System.getenv("SZAMBELAN_BASE_URL") + "\"")
     }
 
