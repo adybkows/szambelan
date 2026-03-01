@@ -26,15 +26,16 @@ class RemoteStorageHelper @Inject constructor(private val service: RemoteStorage
                     call: Call<DataModel?>,
                     response: retrofit2.Response<DataModel?>
                 ) {
+                    val body = response.raw().body
                     if (response.isSuccessful &&
-                        (response.raw().body?.contentLength() ?: 0) > 0
+                        (body?.contentLength() ?: 0) > 0
                     ) {
                         Log.v(TAG, "Download success")
                         done(response.body())
                     } else {
                         Log.e(
                             TAG,
-                            "Download error ${response.code()} contentLength=${response.raw().body?.contentLength()}"
+                            "Download error ${response.code()} contentLength=${body?.contentLength()}"
                         )
                         done(null)
                     }

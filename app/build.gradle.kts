@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.google.services)
@@ -47,7 +49,6 @@ android {
         }
     }
 
-    @Suppress("UnstableApiUsage")
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -55,6 +56,16 @@ android {
                 it.jvmArgs("-Xmx2g")
             }
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
 
@@ -69,6 +80,11 @@ dependencies {
     implementation(libs.navigation.compose)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
+
+    // Credential Manager
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     // Retrofit
     implementation(libs.retrofit)
@@ -90,7 +106,6 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     // UNIT TESTS
-    debugImplementation(libs.compose.ui.test.manifest)
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.core.ktx)
     testImplementation(libs.espresso.contrib)

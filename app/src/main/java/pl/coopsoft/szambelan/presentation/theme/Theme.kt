@@ -1,6 +1,8 @@
 package pl.coopsoft.szambelan.presentation.theme
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -32,9 +34,12 @@ fun MainTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorSchemeColors.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            val window = view.context.findActivity()?.window
+            window?.let {
+                @Suppress("DEPRECATION")
+                window.statusBarColor = colorSchemeColors.background.toArgb()
+                WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = !darkTheme
+            }
         }
     }
 
@@ -44,4 +49,10 @@ fun MainTheme(
 //        shapes = Shapes,
         content = content
     )
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

@@ -1,12 +1,9 @@
 package pl.coopsoft.szambelan.presentation.login
 
-import android.app.Activity
 import android.util.Patterns
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,12 +39,15 @@ fun LoginScreen(
     val showGoogleSignIn = remember { mutableStateOf(true) }
     val showEmailSignIn = remember { mutableStateOf(true) }
     MainTheme(darkTheme) {
-        Surface(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+        ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(paddingValues)
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
@@ -70,7 +69,6 @@ fun LoginScreen(
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = Color.White
                         ),
-//                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_logo_google),
@@ -147,7 +145,7 @@ fun LoginScreen(
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel, darkTheme: Boolean) {
-    val activity = LocalContext.current as Activity
+    val activity = LocalActivity.current
     viewModel.googleSignInInit()
     LoginScreen(
         darkTheme = darkTheme,
@@ -155,7 +153,11 @@ fun LoginScreen(viewModel: LoginViewModel, darkTheme: Boolean) {
         onEmailChange = { viewModel.email.value = it },
         emailSent = viewModel.emailSent.value,
         emailLogInClicked = viewModel::emailLogInClicked,
-        googleSignInClicked = { viewModel.googleSignInClicked(activity) })
+        googleSignInClicked = {
+            activity?.let {
+                viewModel.googleSignInClicked(it)
+            }
+        })
 }
 
 @Preview

@@ -60,13 +60,16 @@ fun MainScreen(
     dismissDialog: (DialogData, (() -> Unit)?) -> Unit
 ) {
     MainTheme(themeMode.value.isDarkTheme()) {
-        Scaffold { innerPadding ->
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+        ) { innerPadding ->
             val dialogList = remember { dialogs }
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .systemBarsPadding()
                     .padding(innerPadding)
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
