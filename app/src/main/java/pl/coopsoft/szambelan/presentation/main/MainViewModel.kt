@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
@@ -55,10 +56,7 @@ class MainViewModel @Inject constructor(
         private val COLOR_WARN2 = Color.Red
     }
 
-    val themeMode = mutableStateOf(
-        persistence.getInt(application, Persistence.PREF_THEME_MODE, ThemeMode.AUTO.toInt())
-            .toThemeMode()
-    )
+    val themeMode = mutableStateOf(ThemeMode.AUTO)
     val loggedIn = mutableStateOf(false)
     val prevEmptyActions = mutableStateOf<List<String>>(emptyList())
     val prevMainMeter = mutableStateOf("")
@@ -79,30 +77,33 @@ class MainViewModel @Inject constructor(
 
     private fun context(): Context = getApplication<Application>()
 
-    fun loadSavedData() {
-        // load and show data from shared preferences
-        loadEditValues()
-        loadMeterStates()
-        showMeterStates()
-        refreshCalculation()
+    init {
+        viewModelScope.launch {
+            persistence.themeModeFlow.collectLatest { mode ->
+                themeMode.value = mode.toThemeMode()
+            }
+        }
     }
 
-    @VisibleForTesting
-    internal fun loadEditValues() {
-        prevMainMeter.value =
-            formattingUtils.toString(persistence.getDouble(context(), Persistence.PREF_OLD_MAIN))
-        prevGardenMeter.value =
-            formattingUtils.toString(persistence.getDouble(context(), Persistence.PREF_OLD_GARDEN))
-        currentMainMeter.value = formattingUtils.toString(
-            persistence.getDouble(
-                context(), Persistence.PREF_CURRENT_MAIN
-            )
-        )
-        currentGardenMeter.value = formattingUtils.toString(
-            persistence.getDouble(
-                context(), Persistence.PREF_CURRENT_GARDEN
-            )
-        )
+    fun loadSavedData() {
+        viewModelScope.launch {
+            val data = persistence.getMeterData()
+            
+            prevMainMeter.value = formattingUtils.toString(data.oldMain)
+            prevGardenMeter.value = formattingUtils.toString(data.oldGarden)
+            currentMainMeter.value = formattingUtils.toString(data.currentMain)
+            currentGardenMeter.value = formattingUtils.toString(data.currentGarden)
+
+            val lines = data.emptyActions.split('\n').filterNot { it.isEmpty() }
+            if (lines.isEmpty()) {
+                emptyActions.clear()
+            } else {
+                emptyActions = lines.map { MeterStates.fromString(it) }.toMutableList()
+            }
+
+            showMeterStates()
+            refreshCalculation()
+        }
     }
 
     fun downloadClicked() {
@@ -132,22 +133,14 @@ class MainViewModel @Inject constructor(
     }
 
     fun saveEditValues() {
-        persistence.putDouble(
-            context(), Persistence.PREF_OLD_MAIN, formattingUtils.toDouble(prevMainMeter.value)
-        )
-        persistence.putDouble(
-            context(), Persistence.PREF_OLD_GARDEN, formattingUtils.toDouble(prevGardenMeter.value)
-        )
-        persistence.putDouble(
-            context(),
-            Persistence.PREF_CURRENT_MAIN,
-            formattingUtils.toDouble(currentMainMeter.value)
-        )
-        persistence.putDouble(
-            context(),
-            Persistence.PREF_CURRENT_GARDEN,
-            formattingUtils.toDouble(currentGardenMeter.value)
-        )
+        viewModelScope.launch {
+            persistence.saveMeterData(
+                currentGarden = formattingUtils.toDouble(currentGardenMeter.value),
+                currentMain = formattingUtils.toDouble(currentMainMeter.value),
+                oldGarden = formattingUtils.toDouble(prevGardenMeter.value),
+                oldMain = formattingUtils.toDouble(prevMainMeter.value)
+            )
+        }
     }
 
     fun refreshCalculation() {
@@ -191,20 +184,11 @@ class MainViewModel @Inject constructor(
     fun updateDecimalSeparator(s: String) = s.replace(wrongDecimalSeparator, decimalSeparator)
 
     @VisibleForTesting
-    internal fun loadMeterStates() {
-        val lines = persistence.getString(context(), Persistence.PREF_EMPTY_ACTIONS, "")
-            ?.split('\n')?.filterNot { it.isEmpty() }
-        if (lines.isNullOrEmpty()) {
-            emptyActions.clear()
-        } else {
-            emptyActions = lines.map { MeterStates.fromString(it) }.toMutableList()
-        }
-    }
-
-    @VisibleForTesting
     internal fun saveMeterStates() {
-        val data = emptyActions.joinToString(separator = "\n")
-        persistence.putString(context(), Persistence.PREF_EMPTY_ACTIONS, data)
+        viewModelScope.launch {
+            val data = emptyActions.joinToString(separator = "\n")
+            persistence.saveEmptyActions(data)
+        }
     }
 
     @VisibleForTesting
@@ -265,8 +249,10 @@ class MainViewModel @Inject constructor(
     }
 
     fun nextThemeMode() {
-        themeMode.value = themeMode.value.next()
-        persistence.putInt(context(), Persistence.PREF_THEME_MODE, themeMode.value.toInt())
+        val nextMode = themeMode.value.next()
+        viewModelScope.launch {
+            persistence.setThemeMode(nextMode.toInt())
+        }
     }
 
     fun displayDialog(dialogData: DialogData) {

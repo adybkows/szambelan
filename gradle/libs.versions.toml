@@ -4,6 +4,7 @@ agp = "9.0.1"
 compose = "1.10.4"
 coreKtx = "1.7.0"
 credentials = "1.5.0"
+datastore = "1.2.0"
 espressoContrib = "3.7.0"
 firebaseBom = "34.10.0"
 firebaseDynamicLinks = "22.1.0"
@@ -38,6 +39,7 @@ converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "coreKtx" }
 credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContrib" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoContrib" }
 espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContrib" }

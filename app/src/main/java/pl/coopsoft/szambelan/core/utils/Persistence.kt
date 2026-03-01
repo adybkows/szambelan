@@ -1,46 +1,65 @@
 package pl.coopsoft.szambelan.core.utils
 
-import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import pl.coopsoft.szambelan.domain.model.MeterData
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class Persistence @Inject constructor(
-    private val formattingUtils: FormattingUtils
+    private val dataStore: DataStore<Preferences>
 ) {
-
-    companion object {
-        private const val PREFERENCES_NAME = "preferences"
-
-        const val PREF_CURRENT_GARDEN = "current_garden"
-        const val PREF_CURRENT_MAIN = "current_main"
-        const val PREF_EMPTY_ACTIONS = "empty_actions"
-        const val PREF_OLD_GARDEN = "old_garden"
-        const val PREF_OLD_MAIN = "old_main"
-        const val PREF_THEME_MODE = "theme_mode"
-        const val PREF_USER_EMAIL = "user_email"
+    private object Keys {
+        val CURRENT_GARDEN = floatPreferencesKey("current_garden")
+        val CURRENT_MAIN = floatPreferencesKey("current_main")
+        val EMPTY_ACTIONS = stringPreferencesKey("empty_actions")
+        val OLD_GARDEN = floatPreferencesKey("old_garden")
+        val OLD_MAIN = floatPreferencesKey("old_main")
+        val THEME_MODE = intPreferencesKey("theme_mode")
+        val USER_EMAIL = stringPreferencesKey("user_email")
     }
 
-    private fun getPrefs(context: Context) =
-        context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+    val themeModeFlow: Flow<Int> = dataStore.data.map { it[Keys.THEME_MODE] ?: 0 }
+    val userEmailFlow: Flow<String> = dataStore.data.map { it[Keys.USER_EMAIL] ?: "" }
 
-    fun getString(context: Context, key: String, defValue: String = formattingUtils.toString(0.0)) =
-        getPrefs(context).getString(key, defValue) ?: defValue
+    suspend fun setThemeMode(mode: Int) {
+        dataStore.edit { it[Keys.THEME_MODE] = mode }
+    }
 
-    fun putString(context: Context, key: String, value: String) =
-        getPrefs(context).edit().putString(key, value).apply()
+    suspend fun setUserEmail(email: String) {
+        dataStore.edit { it[Keys.USER_EMAIL] = email }
+    }
 
-    fun getDouble(context: Context, key: String, defValue: Double = 0.0) =
-        try {
-            getPrefs(context).getFloat(key, defValue.toFloat()).toDouble()
-        } catch (e: ClassCastException) {
-            formattingUtils.toDouble(getString(context, key, defValue.toString()))
+    suspend fun getMeterData(): MeterData {
+        val prefs = dataStore.data.first()
+        return MeterData(
+            currentGarden = prefs[Keys.CURRENT_GARDEN]?.toDouble() ?: 0.0,
+            currentMain = prefs[Keys.CURRENT_MAIN]?.toDouble() ?: 0.0,
+            oldGarden = prefs[Keys.OLD_GARDEN]?.toDouble() ?: 0.0,
+            oldMain = prefs[Keys.OLD_MAIN]?.toDouble() ?: 0.0,
+            emptyActions = prefs[Keys.EMPTY_ACTIONS] ?: ""
+        )
+    }
+
+    suspend fun saveMeterData(
+        currentGarden: Double,
+        currentMain: Double,
+        oldGarden: Double,
+        oldMain: Double
+    ) {
+        dataStore.edit {
+            it[Keys.CURRENT_GARDEN] = currentGarden.toFloat()
+            it[Keys.CURRENT_MAIN] = currentMain.toFloat()
+            it[Keys.OLD_GARDEN] = oldGarden.toFloat()
+            it[Keys.OLD_MAIN] = oldMain.toFloat()
         }
+    }
 
-    fun putDouble(context: Context, key: String, value: Double) =
-        getPrefs(context).edit().remove(key).putFloat(key, value.toFloat()).apply()
-
-    fun getInt(context: Context, key: String, defValue: Int) =
-        getPrefs(context).getInt(key, defValue)
-
-    fun putInt(context: Context, key: String, value: Int) =
-        getPrefs(context).edit().putInt(key, value).apply()
+    suspend fun saveEmptyActions(actions: String) {
+        dataStore.edit { it[Keys.EMPTY_ACTIONS] = actions }
+    }
 }

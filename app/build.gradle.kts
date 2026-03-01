@@ -105,6 +105,9 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    // DataStore
+    implementation(libs.datastore.preferences)
+
     // UNIT TESTS
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.core.ktx)

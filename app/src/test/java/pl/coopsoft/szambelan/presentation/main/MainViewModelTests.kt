@@ -7,6 +7,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import io.mockk.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.*
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,12 +19,14 @@ import org.robolectric.annotation.Config
 import pl.coopsoft.szambelan.core.utils.FormattingUtils
 import pl.coopsoft.szambelan.core.utils.Persistence
 import pl.coopsoft.szambelan.domain.model.DataModel
+import pl.coopsoft.szambelan.domain.model.MeterData
 import pl.coopsoft.szambelan.domain.model.MeterStates
 import pl.coopsoft.szambelan.domain.usecase.login.LogOutUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.DownloadUseCase
 import pl.coopsoft.szambelan.domain.usecase.transfer.UploadUseCase
 import java.util.Locale
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
 class MainViewModelTests {
@@ -38,6 +45,7 @@ class MainViewModelTests {
         )
     }
 
+    private val testDispatcher = StandardTestDispatcher()
     private val downloadUseCase = mockk<DownloadUseCase>(relaxed = true)
     private val logOutUseCase = mockk<LogOutUseCase>(relaxed = true)
     private val persistence = mockk<Persistence>(relaxed = true)
@@ -52,7 +60,9 @@ class MainViewModelTests {
 
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
         Locale.setDefault(Locale.US)
+        every { persistence.themeModeFlow } returns flowOf(0)
         val application = ApplicationProvider.getApplicationContext<Application>()
         mainViewModel = spyk(
             MainViewModel(
@@ -62,45 +72,33 @@ class MainViewModelTests {
         )
     }
 
-    @Test
-    fun testLoadSavedData() {
-        mainViewModel.loadSavedData()
-
-        verify { mainViewModel["loadEditValues"]() }
-        verify { mainViewModel["loadMeterStates"]() }
-        verify { mainViewModel["showMeterStates"]() }
-        verify { mainViewModel.refreshCalculation() }
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun testLoadEditValues() {
-        every { persistence.getDouble(any(), eq(Persistence.PREF_OLD_MAIN), any()) } returns OLD_MAIN
-        every { persistence.getDouble(any(), eq(Persistence.PREF_OLD_GARDEN), any()) } returns OLD_GARDEN
-        every { persistence.getDouble(any(), eq(Persistence.PREF_CURRENT_MAIN), any()) } returns CURRENT_MAIN
-        every { persistence.getDouble(any(), eq(Persistence.PREF_CURRENT_GARDEN), any()) } returns CURRENT_GARDEN
+    fun testLoadSavedData() = runTest {
+        val meterData = MeterData(
+            currentGarden = CURRENT_GARDEN,
+            currentMain = CURRENT_MAIN,
+            oldGarden = OLD_GARDEN,
+            oldMain = OLD_MAIN,
+            emptyActions = EMPTY_ACTIONS_STR
+        )
+        coEvery { persistence.getMeterData() } returns meterData
 
-        assertThat(mainViewModel.prevMainMeter.value).isEmpty()
-        assertThat(mainViewModel.prevGardenMeter.value).isEmpty()
-        assertThat(mainViewModel.currentMainMeter.value).isEmpty()
-        assertThat(mainViewModel.currentGardenMeter.value).isEmpty()
-
-        mainViewModel.loadEditValues()
+        mainViewModel.loadSavedData()
+        advanceUntilIdle()
 
         assertThat(mainViewModel.prevMainMeter.value).isEqualTo(oldMainStr)
         assertThat(mainViewModel.prevGardenMeter.value).isEqualTo(oldGardenStr)
         assertThat(mainViewModel.currentMainMeter.value).isEqualTo(currentMainStr)
         assertThat(mainViewModel.currentGardenMeter.value).isEqualTo(currentGardenStr)
-    }
-
-    @Test
-    fun testLoadMeterStates() {
-        every { persistence.getString(any(), eq(Persistence.PREF_EMPTY_ACTIONS), any()) } returns EMPTY_ACTIONS_STR
-
-        assertThat(mainViewModel.emptyActions).isEmpty()
-
-        mainViewModel.loadMeterStates()
-
         assertThat(mainViewModel.emptyActions).isEqualTo(EMPTY_ACTIONS)
+
+        verify { mainViewModel["showMeterStates"]() }
+        verify { mainViewModel.refreshCalculation() }
     }
 
     @Test
@@ -147,7 +145,7 @@ class MainViewModelTests {
     }
 
     @Test
-    fun testDownloadClicked() {
+    fun testDownloadClicked() = runTest {
         assertThat(mainViewModel.prevMainMeter.value).isEmpty()
         assertThat(mainViewModel.prevGardenMeter.value).isEmpty()
         assertThat(mainViewModel.currentMainMeter.value).isEmpty()
@@ -164,6 +162,7 @@ class MainViewModelTests {
 
         verify { downloadUseCase.askAndDownload(any(), capture(callbackSlot)) }
         callbackSlot.captured.invoke(data)
+        advanceUntilIdle()
 
         assertThat(mainViewModel.prevMainMeter.value).isEqualTo(oldMainStr)
         assertThat(mainViewModel.prevGardenMeter.value).isEqualTo(oldGardenStr)
@@ -197,25 +196,30 @@ class MainViewModelTests {
     }
 
     @Test
-    fun testSaveEditValues() {
+    fun testSaveEditValues() = runTest {
         mainViewModel.prevMainMeter.value = oldMainStr
         mainViewModel.prevGardenMeter.value = oldGardenStr
         mainViewModel.currentMainMeter.value = currentMainStr
         mainViewModel.currentGardenMeter.value = currentGardenStr
 
         mainViewModel.saveEditValues()
+        advanceUntilIdle()
 
-        verify { persistence.putDouble(any(), eq(Persistence.PREF_OLD_MAIN), eq(OLD_MAIN)) }
-        verify { persistence.putDouble(any(), eq(Persistence.PREF_OLD_GARDEN), eq(OLD_GARDEN)) }
-        verify { persistence.putDouble(any(), eq(Persistence.PREF_CURRENT_MAIN), eq(CURRENT_MAIN)) }
-        verify { persistence.putDouble(any(), eq(Persistence.PREF_CURRENT_GARDEN), eq(CURRENT_GARDEN)) }
+        coVerify {
+            persistence.saveMeterData(
+                currentGarden = CURRENT_GARDEN,
+                currentMain = CURRENT_MAIN,
+                oldGarden = OLD_GARDEN,
+                oldMain = OLD_MAIN
+            )
+        }
     }
 
     @Test
     fun testUpdateDecimalSeparator() {
         val separator = java.text.DecimalFormatSymbols.getInstance().decimalSeparator
         val other = if (separator == '.') ',' else '.'
-        
+
         assertThat(mainViewModel.updateDecimalSeparator("123${separator}456")).isEqualTo("123${separator}456")
         assertThat(mainViewModel.updateDecimalSeparator("123${other}456")).isEqualTo("123${separator}456")
     }
