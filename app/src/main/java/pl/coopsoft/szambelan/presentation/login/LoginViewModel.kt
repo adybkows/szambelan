@@ -1,13 +1,12 @@
 package pl.coopsoft.szambelan.presentation.login
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import pl.coopsoft.szambelan.domain.usecase.login.EmailLogInUseCase
 import pl.coopsoft.szambelan.domain.usecase.login.GoogleSignInUseCase
 import javax.inject.Inject
@@ -30,15 +29,12 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    @SuppressLint("ComposableNaming")
-    @Composable
-    fun googleSignInInit() {
-        googleSignInUseCase.init()
-    }
-
-    fun googleSignInClicked(activity: Activity) {
+    fun googleSignInClicked(context: Context, scope: CoroutineScope) {
         emailSent.value = false
-        googleSignInUseCase.googleSignIn(activity, null)
+        googleSignInUseCase.googleSignIn(context, scope) { _ ->
+            // Navigation is handled by LoginStateUseCase in MainActivity
+            // which listens to FirebaseAuth changes.
+        }
     }
 
     fun handleDeepLinks(intent: Intent): Boolean {

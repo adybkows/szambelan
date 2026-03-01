@@ -1,19 +1,16 @@
 package pl.coopsoft.szambelan.core.utils
 
-import android.app.Activity
-import android.content.IntentSender
+import android.content.Context
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class GoogleSignInHelper @Inject constructor(private val auth: FirebaseAuth) {
@@ -22,59 +19,75 @@ class GoogleSignInHelper @Inject constructor(private val auth: FirebaseAuth) {
         private const val TAG = "GoogleSignInHelper"
     }
 
-    fun googleSignInClient(activity: Activity) =
-        Identity.getSignInClient(activity)
-
-    @Composable
-    fun googleSignInLauncher(googleSignInClient: SignInClient, onSignedIn: (ok: Boolean) -> Unit) =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val googleCredential = googleSignInClient.getSignInCredentialFromIntent(result.data)
-                val idToken = googleCredential.googleIdToken
-                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                auth.signInWithCredential(firebaseCredential)
-                    .addOnCompleteListener { task ->
-                        onSignedIn(task.isSuccessful)
-                    }
-            }
-        }
-
     fun googleSignIn(
-        activity: Activity,
-        googleSignInClient: SignInClient,
-        googleSignInLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+        context: Context,
+        scope: CoroutineScope,
         gcpId: String,
-        onSuccess: (() -> Unit)? = null,
+        onSignedIn: (ok: Boolean) -> Unit,
         onFailure: (() -> Unit)? = null
     ) {
-        val signInRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    .setServerClientId(gcpId)
-                    .setFilterByAuthorizedAccounts(false)
-                    .build()
-            )
+        val credentialManager = CredentialManager.create(context)
+
+        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(gcpId)
+            .setAutoSelectEnabled(false)
             .build()
 
-        googleSignInClient.beginSignIn(signInRequest)
-            .addOnSuccessListener(activity) { result ->
-                try {
-                    googleSignInLauncher.launch(
-                        IntentSenderRequest.Builder(result.pendingIntent).build()
-                    )
-                    onSuccess?.invoke()
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        scope.launch {
+            try {
+                Log.d(TAG, "Launching Credential Manager UI...")
+                val result = credentialManager.getCredential(
+                    context = context,
+                    request = request
+                )
+                val credential = result.credential
+
+                Log.d(TAG, "Received credential type: ${credential.type}")
+
+                // Be more flexible with type checking
+                val isGoogleId =
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL ||
+                            credential.type.contains("googleid", ignoreCase = true)
+
+                if (isGoogleId) {
+                    try {
+                        val googleIdTokenCredential =
+                            GoogleIdTokenCredential.createFrom(credential.data)
+                        Log.d(TAG, "Successfully parsed GoogleIdTokenCredential")
+
+                        val firebaseCredential =
+                            GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+
+                        Log.d(TAG, "Signing in to Firebase...")
+                        auth.signInWithCredential(firebaseCredential)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.d(TAG, "Firebase sign-in SUCCESSFUL")
+                                } else {
+                                    Log.e(TAG, "Firebase sign-in FAILED", task.exception)
+                                }
+                                onSignedIn(task.isSuccessful)
+                            }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to parse Google ID token from credential data", e)
+                        onSignedIn(false)
+                    }
+                } else {
+                    Log.e(TAG, "Received unexpected credential type: ${credential.type}")
+                    onSignedIn(false)
                 }
-            }
-            .addOnFailureListener(activity) { e ->
-                // No saved credentials found. Launch the One Tap sign-up flow, or
-                // do nothing and continue presenting the signed-out UI.
-                Log.d(TAG, e.localizedMessage.orEmpty())
+            } catch (e: GetCredentialException) {
+                Log.e(TAG, "Credential Manager error: [${e.type}] ${e.message}")
+                onFailure?.invoke()
+            } catch (e: Exception) {
+                Log.e(TAG, "Unexpected error during sign-in: ${e.localizedMessage}", e)
                 onFailure?.invoke()
             }
+        }
     }
 }

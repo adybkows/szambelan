@@ -19,8 +19,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 import pl.coopsoft.szambelan.R
 import pl.coopsoft.testutils.EmptyTestActivity
 
@@ -71,7 +71,7 @@ class DialogUtilsTests {
             val dialog = showQuestionDialog(activity, yesClicked, cancelClicked)
 
             dialog.cancel()
-            Robolectric.flushForegroundThreadScheduler()
+            ShadowLooper.idleMainLooper()
 
             assertFalse(dialog.isShowing)
             verify { cancelClicked.run() }

@@ -10,8 +10,8 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,28 +48,29 @@ class LoginViewModelTests {
     }
 
     private fun testEmailLogInClicked(testSuccess: Boolean) {
-        val onCompleteSlot = slot<(Boolean) -> Unit>()
-        justRun { emailLogInUseCase.emailLogin(TEST_EMAIL, capture(onCompleteSlot)) }
+        val onComplete = mutableListOf<(Boolean) -> Unit>()
+        justRun { emailLogInUseCase.emailLogin(TEST_EMAIL, capture(onComplete)) }
 
         loginViewModel.email.value = TEST_EMAIL
         loginViewModel.emailSent.value = false
         loginViewModel.emailLogInClicked()
 
-        assertThat(onCompleteSlot.captured).isNotNull()
+        assertThat(onComplete).isNotEmpty()
 
-        onCompleteSlot.captured.invoke(testSuccess)
+        onComplete[0].invoke(testSuccess)
         assertThat(loginViewModel.emailSent.value).isEqualTo(testSuccess)
     }
 
     @Test
     fun testGoogleSignInClicked() {
         val activity = mockk<Activity>()
-        justRun { googleSignInUseCase.googleSignIn(any(), any()) }
+        val scope = mockk<CoroutineScope>()
+        justRun { googleSignInUseCase.googleSignIn(any(), any(), any()) }
         loginViewModel.emailSent.value = true
-        loginViewModel.googleSignInClicked(activity)
+        loginViewModel.googleSignInClicked(activity, scope)
 
         assertThat(loginViewModel.emailSent.value).isFalse()
-        verify { googleSignInUseCase.googleSignIn(activity, null) }
+        verify { googleSignInUseCase.googleSignIn(activity, scope, any()) }
     }
 
     @Test
