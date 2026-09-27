@@ -19,10 +19,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +67,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding()
+                .imePadding()
         ) { innerPadding ->
             val dialogList = remember { dialogs }
 
@@ -135,12 +139,14 @@ fun MainScreen(
                     val lazyListState = rememberLazyListState(
                         initialFirstVisibleItemIndex = prevEmptyActions.value.size - 1
                     )
+                    val listHeight = calculateTextLinesHeight(linesCount = 3)
+
                     LazyColumn(
                         state = lazyListState,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .weight(1f)
+                            .height(listHeight)
                     ) {
                         items(prevEmptyActions.value) {
                             Text(
@@ -341,6 +347,23 @@ fun MeterState(
             )
         )
     }
+}
+
+@Composable
+fun calculateTextLinesHeight(
+    linesCount: Int,
+    textStyle: TextStyle = LocalTextStyle.current
+): Dp {
+    val textMeasurer = rememberTextMeasurer()
+    val totalHeightPx = remember(textMeasurer, textStyle, linesCount) {
+        val singleLineHeight = textMeasurer.measure(
+            text = "Ay",
+            style = textStyle,
+            maxLines = 1
+        ).size.height
+        singleLineHeight * linesCount
+    }
+    return with(LocalDensity.current) { totalHeightPx.toDp() }
 }
 
 @Composable

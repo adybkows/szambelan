@@ -44,6 +44,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding()
+                .imePadding()
         ) { paddingValues ->
             Column(
                 modifier = Modifier
